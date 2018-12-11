@@ -1,5 +1,7 @@
 package org.ljsn.clavardage.core;
 
+import java.util.Date;
+
 public class Message {
     private Date timestamp;
     private String content;
@@ -9,18 +11,17 @@ public class Message {
     	this.timestamp = timestamp;
     	this.content = content;
     	this.author = author;
-    	return this;
     }
     
-    public getTime() {
+    public Date getTime() {
     	return this.timestamp;
     }
     
-    public getContent() {
+    public String getContent() {
     	return this.content;
     }
     
-    public getAuthor() {
+    public User getAuthor() {
     	return this.author;
     } 
 }
