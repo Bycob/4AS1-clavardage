@@ -32,11 +32,15 @@ public class UDPMessager {
 			@Override
 			public void run() {
 				while (running) {
-					DatagramPacket packet = new DatagramPacket(new byte[0xffff], 0xffff);
+					DatagramPacket datagram = new DatagramPacket(new byte[0xffff], 0xffff);
 					try {
-						datagramChannel.socket().receive(packet);
-						ByteBuffer buffer = ByteBuffer.wrap(packet.getData(), packet.getOffset(), packet.getLength());
-						Packet.readPacket(buffer);
+						datagramChannel.socket().receive(datagram);
+						ByteBuffer buffer = ByteBuffer.wrap(datagram.getData(), datagram.getOffset(), datagram.getLength());
+						Packet packet = Packet.readPacket(buffer);
+						
+						for (PacketListener l : packetListeners) {
+							l.onPacket(datagram.getAddress(), packet);
+						}
 					}
 					catch (IOException e) {
 						running = false;

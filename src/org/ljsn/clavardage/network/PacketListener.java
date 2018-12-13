@@ -1,7 +1,7 @@
 package org.ljsn.clavardage.network;
 
-import org.ljsn.clavardage.core.User;
+import java.net.InetAddress;
 
 public interface PacketListener {
-	void onPacket(User user, Packet packet);
+	void onPacket(InetAddress address, Packet packet);
 }
