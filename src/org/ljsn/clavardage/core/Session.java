@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public class Session {
 	private String pseudo;
+	/** This session has been initialized correctly. */
 	private boolean valid = false;
 	
 	private UserList userList;
@@ -15,7 +16,7 @@ public class Session {
 	}
 	
 	
-	public Session() {
+	public Session(String pseudo) {
 		this.conversations = new HashMap<User, Conversation>();
 	}
 	
