@@ -25,7 +25,7 @@ public class PacketHello extends Packet {
 		sb.append(this.tcpPort).append("\n");
 		sb.append(this.pseudo).append("\n");
 		
-		ByteBuffer pseudoBuf = StandardCharsets.UTF_8.encode(this.pseudo);
+		ByteBuffer pseudoBuf = StandardCharsets.UTF_8.encode(sb.toString());
 		buffer.put(pseudoBuf);
 	}
 
@@ -35,7 +35,7 @@ public class PacketHello extends Packet {
 		String[] lines = decoded.toString().split("\n");
 		
 		// TODO manage errors
-		this.tcpPort = Integer.getInteger(lines[0]);
+		this.tcpPort = Integer.parseInt(lines[0]);
 		this.pseudo = lines[1];
 	}
 	
