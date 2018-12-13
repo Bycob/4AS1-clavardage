@@ -38,4 +38,12 @@ public class PacketHello extends Packet {
 		this.tcpPort = Integer.getInteger(lines[0]);
 		this.pseudo = lines[1];
 	}
+	
+	public String getPseudo() {
+		return this.pseudo;
+	}
+	
+	public int getTcpPort() {
+		return this.tcpPort;
+	}
 }
