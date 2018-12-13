@@ -9,11 +9,11 @@ public class UserList {
 		this.users = new ArrayList<User>();
 	}
 	
-	ArrayList<User> getUsers() {
+	public ArrayList<User> getUsers() {
 		return this.users;
 	}
 	
-	void addUser(User u) {
+	public void addUser(User u) {
 		users.add(u);
 	}
 }
