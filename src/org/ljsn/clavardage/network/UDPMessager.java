@@ -81,9 +81,9 @@ public class UDPMessager {
 	
 	public void broadcast(Packet packet) throws IOException {
 		ByteBuffer buffer = getPacketBuffer(packet);
-		byte[] array = new byte[buffer.limit()];
+		byte[] array = new byte[buffer.remaining()];
 		buffer.get(array);
-		DatagramPacket datagram = new DatagramPacket(array, buffer.limit(), this.group, this.port);
+		DatagramPacket datagram = new DatagramPacket(array, array.length, this.group, this.port);
 		this.socket.send(datagram);
 	}
 	
