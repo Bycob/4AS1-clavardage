@@ -10,7 +10,7 @@ public class PacketHello extends Packet {
 	private int tcpPort;
 	
 	public PacketHello() {
-		this("", -1);
+		this(" ", -1);
 	}
 	
 	public PacketHello(String pseudo, int tcpPort) {

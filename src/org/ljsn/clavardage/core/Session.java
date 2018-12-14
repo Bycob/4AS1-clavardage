@@ -1,14 +1,17 @@
 package org.ljsn.clavardage.core;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 
 import org.ljsn.clavardage.network.Packet;
 import org.ljsn.clavardage.network.PacketHello;
 import org.ljsn.clavardage.network.PacketListener;
+import org.ljsn.clavardage.network.UDPMessager;
 
 public class Session {
 	public static final int PORT = 1025;
+
 	private String pseudo;
 	/** This session has been initialized correctly. Valid pseudo name */
 	private boolean valid = false;
@@ -16,7 +19,9 @@ public class Session {
 	private UserList userList;
 	/** Hash table of conversations associated to users */
 	private HashMap<User, Conversation> conversations;
-	
+
+	private UDPMessager udpMessager;
+
 	private class NetworkListener implements PacketListener {
 
 		@Override
@@ -25,6 +30,7 @@ public class Session {
 				PacketHello hellopkt = (PacketHello) packet;
 				// generate new user instance using pseudonym
 				User u = new User(hellopkt.getPseudo());
+				System.out.println(hellopkt.getPseudo());
 				// verifies if pseudonym is taken
 				if (userList.getUsers().contains(u)) {
 					userList.addUser(u);
@@ -32,19 +38,30 @@ public class Session {
 					// exception
 				}
 			} else {
-				//exception
+				// exception
 			}
 		}
-		
+
 	}
-	
-	
+
 	public Session(String pseudo) {
 		this.conversations = new HashMap<User, Conversation>();
+		this.userList = new UserList();
+
+		try {
+			this.udpMessager = new UDPMessager(PORT);
+			this.udpMessager.addPacketListener(new NetworkListener());
+
+			this.udpMessager.broadcast(new PacketHello(pseudo, 1234));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	public void changePseudo(String newPseudo) {}
-	
-	public void sendMessage() {}
-	
+
+	public void changePseudo(String newPseudo) {
+	}
+
+	public void sendMessage() {
+	}
+
 }

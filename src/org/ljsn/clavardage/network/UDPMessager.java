@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class UDPMessager {
 	
 	private boolean running;
-	private ArrayList<PacketListener> packetListeners;
+	private ArrayList<PacketListener> packetListeners = new ArrayList<PacketListener>();
 	
 	private int port;
 	private DatagramChannel datagramChannel;

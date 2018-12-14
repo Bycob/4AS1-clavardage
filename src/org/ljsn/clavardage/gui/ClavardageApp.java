@@ -1,5 +1,7 @@
 package org.ljsn.clavardage.gui;
 
+import org.ljsn.clavardage.core.Session;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -9,6 +11,8 @@ public class ClavardageApp extends Application {
 	
 	private Stage primaryStage;
 	private BorderPane root = new BorderPane();
+	
+	private Session session;
 	
 	public ClavardageApp() {
 		
@@ -24,9 +28,13 @@ public class ClavardageApp extends Application {
 		Scene scene = new Scene(this.root);
 		stage.setScene(scene);
 		
-		
+		createSession();
 		
 		stage.show();
+	}
+	
+	private void createSession() {
+		this.session = new Session("jean-michel");
 	}
 	
 	public static void main(String[] args) {
