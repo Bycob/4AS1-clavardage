@@ -10,7 +10,7 @@ import org.ljsn.clavardage.network.PacketListener;
 import org.ljsn.clavardage.network.UDPMessager;
 
 public class Session {
-	public static final int PORT = 1025;
+	public static final int PORT = 52684;
 
 	private String pseudo;
 	/** This session has been initialized correctly. Valid pseudo name */

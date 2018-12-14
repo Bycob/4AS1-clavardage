@@ -2,18 +2,21 @@ package org.ljsn.clavardage.network;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
 
 public class UDPMessager {
+	
+	public static final String MULTICAST_ADDRESS = "225.4.5.6";
 	
 	private boolean running;
 	private ArrayList<PacketListener> packetListeners = new ArrayList<PacketListener>();
 	
 	private int port;
-	private DatagramChannel datagramChannel;
+	private InetAddress group;
+	private MulticastSocket socket;
 	
 	private Thread receiveThread;
 	
@@ -22,8 +25,12 @@ public class UDPMessager {
 		this.port = port;
 		
 		try {
-			this.datagramChannel = DatagramChannel.open();
-			this.datagramChannel.socket().bind(new InetSocketAddress(port));
+			this.socket = new MulticastSocket(port);
+			
+			// this.socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			
+			this.group = InetAddress.getByName(MULTICAST_ADDRESS);
+			this.socket.joinGroup(this.group);
 		} catch (IOException e) {
 			throw e;
 		}
@@ -34,7 +41,7 @@ public class UDPMessager {
 				while (running) {
 					DatagramPacket datagram = new DatagramPacket(new byte[0xffff], 0xffff);
 					try {
-						datagramChannel.socket().receive(datagram);
+						socket.receive(datagram);
 						ByteBuffer buffer = ByteBuffer.wrap(datagram.getData(), datagram.getOffset(), datagram.getLength());
 						Packet packet = Packet.readPacket(buffer);
 						
@@ -73,7 +80,11 @@ public class UDPMessager {
 	}
 	
 	public void broadcast(Packet packet) throws IOException {
-		this.datagramChannel.send(getPacketBuffer(packet), new InetSocketAddress("255.255.255.255", this.port));
+		ByteBuffer buffer = getPacketBuffer(packet);
+		byte[] array = new byte[buffer.limit()];
+		buffer.get(array);
+		DatagramPacket datagram = new DatagramPacket(array, buffer.limit(), this.group, this.port);
+		this.socket.send(datagram);
 	}
 	
 	public void stop() {
