@@ -35,6 +35,7 @@ public class UDPMessager {
 			throw e;
 		}
 		
+		
 		this.receiveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {

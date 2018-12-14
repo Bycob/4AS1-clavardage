@@ -83,6 +83,10 @@ public abstract class Packet implements Serializable {
 		to.put(bos.toByteArray());
 	}
 	
-	protected abstract void writeContent(ByteBuffer to);
-	protected abstract void readContent(ByteBuffer from);
+	protected void writeContent(ByteBuffer to) {
+		throw new UnsupportedOperationException("not implemented");
+	}
+	protected void readContent(ByteBuffer from) {
+		throw new UnsupportedOperationException("not implemented");
+	}
 }
