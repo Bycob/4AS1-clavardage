@@ -19,6 +19,28 @@ public class UserList implements Serializable {
 		return users.contains(u);
 	}
 	
+	public User getByIpAddress(String addr) {
+		for (User user : this.users) {
+			if (user.getIpAddr().equals(addr)) {
+				return user;
+			}
+		}
+		return null;
+	}
+	
+	public User getByPseudo(String pseudo) {
+		for (User user : this.users) {
+			if (user.getPseudo().equals(pseudo)) {
+				return user;
+			}
+		}
+		return null;
+	}
+	
+	public boolean hasPseudo(String pseudo) {
+		return getByPseudo(pseudo) != null;
+	}
+	
 	public boolean isEmpty() {
 		return users.isEmpty();
 	}

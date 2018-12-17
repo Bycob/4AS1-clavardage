@@ -24,7 +24,7 @@ public class MainViewController implements Initializable {
 	
 	public MainViewController(ClavardageApp app) {
 		this.app = app;
-		this.session = this.app.getSession();
+		this.session = this.app.session;
 	}
 	
 	public void updateUsers() {

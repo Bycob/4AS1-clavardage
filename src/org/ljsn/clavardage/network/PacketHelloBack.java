@@ -3,7 +3,9 @@ package org.ljsn.clavardage.network;
 import org.ljsn.clavardage.core.UserList;
 
 public class PacketHelloBack extends Packet {
-
+	
+	private static final long serialVersionUID = 3720002291814787773L;
+	
 	private UserList activeUsers;
 	
 	public PacketHelloBack() {
@@ -11,7 +13,7 @@ public class PacketHelloBack extends Packet {
 	}
 	
 	public PacketHelloBack(UserList ul) {
-		super(Type.HELLO);
+		super(Type.HELLO_BACK);
 		this.activeUsers = ul;
 	}
 	/*

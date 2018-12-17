@@ -4,6 +4,8 @@ import org.ljsn.clavardage.core.Session;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
@@ -11,11 +13,9 @@ public class ConnectPanelController {
 	
 	// Application part
 	private ClavardageApp app;
-	private Session session;
 	
 	public ConnectPanelController(ClavardageApp app) {
 		this.app = app;
-		this.session = app.getSession();
 	}
 
 	// FXML part
@@ -28,6 +28,14 @@ public class ConnectPanelController {
 	
 	@FXML
 	protected void handleConnect(ActionEvent evt) {
-		this.app.setMainView();
+		try {
+			this.app.session = new Session(this.pseudoText.getText());
+		}
+		catch (IllegalArgumentException e) {
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("Wrong pseudo");
+			alert.setContentText(e.getMessage());
+			alert.show();
+		}
 	}
 }

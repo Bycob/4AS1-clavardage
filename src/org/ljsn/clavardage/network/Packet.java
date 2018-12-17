@@ -16,7 +16,9 @@ public abstract class Packet implements Serializable {
 	private static final long serialVersionUID = 3207904235185142071L;
 	
 	public enum Type {
-		HELLO(PacketHello.class);
+		HELLO(PacketHello.class),
+		HELLO_BACK(PacketHelloBack.class),
+		MESSAGE(PacketMessage.class);
 		
 		public final Class<? extends Packet> packetClass;
 		

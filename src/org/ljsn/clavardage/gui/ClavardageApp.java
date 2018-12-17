@@ -12,10 +12,11 @@ public class ClavardageApp extends Application {
 	
 	private Stage primaryStage;
 	
-	private Session session;
+	// Package accessible fields
+	Session session;
 	
-	private Parent connectPanel;
-	private Parent mainView;
+	Parent connectPanel;
+	Parent mainView;
 	
 	
 	public ClavardageApp() {
@@ -37,23 +38,13 @@ public class ClavardageApp extends Application {
 		loader.setController(new MainViewController(this));
 		mainView = loader.load();
 		
-		setConnectPanel();
+		setScene(connectPanel);
 		
 		stage.show();
 	}
 	
-	public Session getSession() {
-		return this.session;
-	}
-	
-	public void setConnectPanel() {
-		Scene scene = new Scene(this.connectPanel);
-		this.primaryStage.setScene(scene);
-	}
-	
-	public void setMainView() {
-		Scene scene = new Scene(this.mainView);
-		this.primaryStage.setScene(scene);
+	void setScene(Parent sceneRoot) {
+		this.primaryStage.setScene(new Scene(sceneRoot));
 	}
 	
 	public static void main(String[] args) {
