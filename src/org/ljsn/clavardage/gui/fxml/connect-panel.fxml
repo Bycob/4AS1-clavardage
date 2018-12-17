@@ -3,21 +3,30 @@
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="477.0" prefWidth="490.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
   <children>
-    <VBox prefHeight="400.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <VBox alignment="CENTER" prefHeight="572.0" prefWidth="642.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-        <Label maxWidth="1.7976931348623157E308" text="Connectez vous" textAlignment="CENTER" />
-        <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" VBox.vgrow="NEVER">
+        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="428.0" text="Connectez vous" textAlignment="LEFT" underline="false" VBox.vgrow="NEVER">
+          <effect>
+            <Glow level="0.6258064516129033" />
+          </effect>
+          <font>
+            <Font name="System Bold" size="30.0" />
+          </font>
+        </Label>
+        <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="395.0" spacing="20.0" VBox.vgrow="NEVER">
           <children>
             <Label text="Pseudo" />
-            <TextField fx:id="pseudoText" prefWidth="200.0" HBox.hgrow="NEVER" />
+            <TextField fx:id="pseudoText" alignment="TOP_CENTER" prefWidth="200.0" HBox.hgrow="NEVER" />
+            <Button fx:id="connectButton" cancelButton="false" defaultButton="false" mnemonicParsing="false" onAction="#handleConnect" text="Connect" textAlignment="CENTER" />
           </children>
         </HBox>
-        <Button fx:id="connectButton" cancelButton="false" defaultButton="false" mnemonicParsing="false" onAction="#handleConnect" text="Connect" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
       </children>
     </VBox>
   </children>
