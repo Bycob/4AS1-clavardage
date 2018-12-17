@@ -75,9 +75,10 @@ public class Session {
 	}
 
 	public void changePseudo(String newPseudo) {
+		// TODO changePseudo
 	}
 
-	public void sendMessage() {
+	public void sendMessage(User user, String message) {
+		// TODO sendMessage
 	}
-
 }

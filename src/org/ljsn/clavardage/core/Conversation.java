@@ -12,17 +12,17 @@ public class Conversation {
 		this.version = 0;
 	}
 	
-	void addMessage(Message m) {
+	public void addMessage(Message m) {
 		// conversation version is updated at each new message
 		this.version++;
 		this.messageList.add(m);
 	}
 	
-	ArrayList<Message> getMessages() {
+	public ArrayList<Message> getMessages() {
 		return this.messageList;
 	}
 	
-	int getVersion() {
+	public int getVersion() {
 		return this.version;
 	}
 }

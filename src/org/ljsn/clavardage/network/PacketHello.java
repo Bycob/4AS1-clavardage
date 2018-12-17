@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 
 public class PacketHello extends Packet {
 
+	private static final long serialVersionUID = 4443245585509920047L;
+	
 	private String pseudo;
 	private int tcpPort;
 	

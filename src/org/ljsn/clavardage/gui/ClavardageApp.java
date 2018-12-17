@@ -3,16 +3,20 @@ package org.ljsn.clavardage.gui;
 import org.ljsn.clavardage.core.Session;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class ClavardageApp extends Application {
 	
 	private Stage primaryStage;
-	private BorderPane root = new BorderPane();
 	
 	private Session session;
+	
+	private Parent connectPanel;
+	private Parent mainView;
+	
 	
 	public ClavardageApp() {
 		
@@ -25,16 +29,31 @@ public class ClavardageApp extends Application {
 		stage.setHeight(600);
 		stage.setTitle("sCOOp-di-POOp");
 		
-		Scene scene = new Scene(this.root);
-		stage.setScene(scene);
+		FXMLLoader loader = new FXMLLoader(ClavardageApp.class.getResource("fxml/connect-panel.fxml"));
+		loader.setController(new ConnectPanelController(this));
+		connectPanel = loader.load();
 		
-		createSession();
+		loader = new FXMLLoader(ClavardageApp.class.getResource("fxml/main-view.fxml"));
+		loader.setController(new MainViewController(this));
+		mainView = loader.load();
+		
+		setConnectPanel();
 		
 		stage.show();
 	}
 	
-	private void createSession() {
-		this.session = new Session("jean-michel");
+	public Session getSession() {
+		return this.session;
+	}
+	
+	public void setConnectPanel() {
+		Scene scene = new Scene(this.connectPanel);
+		this.primaryStage.setScene(scene);
+	}
+	
+	public void setMainView() {
+		Scene scene = new Scene(this.mainView);
+		this.primaryStage.setScene(scene);
 	}
 	
 	public static void main(String[] args) {
