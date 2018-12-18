@@ -27,4 +27,8 @@ public class TCPSender {
 			this.channel.write(buffer);
 		}
 	}
+	
+	public void close() throws IOException {
+		this.channel.close();
+	}
 }

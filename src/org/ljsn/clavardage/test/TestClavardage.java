@@ -24,7 +24,7 @@ public class TestClavardage {
 	}
 	
 	private static void testTCP() throws IOException {
-		TCPReceiver receiver = new TCPReceiver(5555);
+		TCPReceiver receiver = new TCPReceiver(5556);
 		receiver.addPacketListener(new PacketListener() {
 			@Override
 			public void onPacket(InetAddress address, Packet packet) {
@@ -44,10 +44,10 @@ public class TestClavardage {
 			e.printStackTrace();
 		}
 		
-		TCPSender sender = new TCPSender("localhost", 5555);
+		TCPSender sender = new TCPSender("localhost", 5556);
 		sender.sendPacket(new PacketHello("dab", 5555));
 		sender.sendPacket(new PacketHello("dab2", 5555));
-		sender.sendPacket(new PacketHello("dab2", 5555));
+		sender.sendPacket(new PacketHello("dab3", 5555));
 		sender.sendPacket(new PacketHello("dab4", 5555));
 
 		User u1 = new User("toto", 22, "123.456.789.10");
@@ -66,6 +66,9 @@ public class TestClavardage {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		receiver.stop();
+		sender.close();
 	}
 	
 	private static void testUDP() throws IOException {

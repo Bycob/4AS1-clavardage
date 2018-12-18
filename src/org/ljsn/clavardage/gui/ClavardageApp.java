@@ -43,6 +43,12 @@ public class ClavardageApp extends Application {
 		stage.show();
 	}
 	
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		this.session.destroy();
+	}
+	
 	void setScene(Parent sceneRoot) {
 		this.primaryStage.setScene(new Scene(sceneRoot));
 	}

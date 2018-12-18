@@ -29,7 +29,7 @@ public class ConnectPanelController {
 	@FXML
 	protected void handleConnect(ActionEvent evt) {
 		try {
-			this.app.session = new Session(this.pseudoText.getText());
+			this.app.session = new Session(this.pseudoText.getText(), new GUISessionListener(this.app));
 		}
 		catch (IllegalArgumentException e) {
 			Alert alert = new Alert(AlertType.WARNING);

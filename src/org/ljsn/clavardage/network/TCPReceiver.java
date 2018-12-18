@@ -165,4 +165,11 @@ public class TCPReceiver {
 	public void clearPacketListeners() {
 		this.packetListeners.clear();
 	}
+	
+	/** Stops the server and close every opened socket */
+	public void stop() throws IOException {
+		this.running = false;
+		// TODO close server in the server thread when it's not blocking (make it non-blocking BEFORE)
+		this.server.close();
+	}
 }

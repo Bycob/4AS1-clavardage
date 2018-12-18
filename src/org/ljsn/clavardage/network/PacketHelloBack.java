@@ -16,6 +16,11 @@ public class PacketHelloBack extends Packet {
 		super(Type.HELLO_BACK);
 		this.activeUsers = ul;
 	}
+	
+	public UserList getActiveUsers() {
+		return this.activeUsers;
+	}
+	
 	/*
 	@Override
 	public void writeContent(ByteBuffer buffer) {
@@ -40,8 +45,4 @@ public class PacketHelloBack extends Packet {
 			this.activeUsers.addUser(new User(params[1], Integer.parseInt(params[3]), params[5]));
 		}
 	}*/
-	
-	public UserList getActiveUsers() {
-		return this.activeUsers;
-	}
 }

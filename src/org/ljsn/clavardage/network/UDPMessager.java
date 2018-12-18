@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -50,15 +51,23 @@ public class UDPMessager {
 							l.onPacket(datagram.getAddress(), packet);
 						}
 					}
+					catch (SocketException e) {
+						if ("socket closed".equals(e.getMessage())) {
+							System.err.println("Socket closed");
+						}
+						else {
+							e.printStackTrace();
+						}
+					}
 					catch (IOException e) {
 						running = false;
 						// TODO manage IOException when receiving packet
 						System.err.println("TODO manage exception");
-						Thread.dumpStack();
+						e.printStackTrace();
 					}
 				}
 			}
-		}, "Receive thread");
+		}, "UDP Receive thread");
 		
 		this.receiveThread.setDaemon(false);
 		this.running = true;
@@ -90,5 +99,6 @@ public class UDPMessager {
 	
 	public void stop() {
 		this.running = false;
+		socket.close();
 	}
 }

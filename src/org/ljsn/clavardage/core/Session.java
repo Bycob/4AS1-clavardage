@@ -2,7 +2,6 @@ package org.ljsn.clavardage.core;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -26,7 +25,7 @@ public class Session {
 	/** Hash table of conversations associated to users */
 	private HashMap<User, Conversation> conversations;
 
-	private ArrayList<SessionListener> sessionListener = new ArrayList<SessionListener>();
+	private SessionListener sessionListener;
 
 	private UDPMessager udpMessager;
 	private TCPReceiver tcpReceiver;
@@ -46,15 +45,24 @@ public class Session {
 				if (!userList.hasUser(u) && !isLocalAddress) {
 					userList.addUser(u);
 					System.out.println(address.getHostAddress() + " " + hellopkt.getPseudo());
+					
+					// send hello back
 					PacketHelloBack helloBack = new PacketHelloBack(userList);
 					sendPacket(u, helloBack);
+					
+					// update ui
+					// TODO
 				} else {
-					// exception
+					// nothing
 				}
 			} else if (packet instanceof PacketHelloBack) {
+				// TODO what if "hello back" returns "pseudo already used" ?
+				
 				if (userList.isEmpty()) {
 					userList = ((PacketHelloBack) packet).getActiveUsers();
 				}
+				
+				// TODO update UI
 			} else if (packet instanceof PacketMessage) {
 				PacketMessage messagePkt = (PacketMessage) packet;
 				User u = userList.getByIpAddress(address.getHostAddress());
@@ -78,13 +86,18 @@ public class Session {
 	 * @param pseudo
 	 * @throws IllegalArgumentException If the pseudo is not valid (locally).
 	 */
-	public Session(String pseudo) {
+	public Session(String pseudo, SessionListener l) {
 		// check pseudo validity
 		if (pseudo.isEmpty()) {
 			throw new IllegalArgumentException("Pseudo should be at least one character long");
 		}
+		
+		if (l == null) {
+			throw new NullPointerException("No session listener found");
+		}
 
 		this.pseudo = pseudo;
+		this.sessionListener = l;
 
 		this.conversations = new HashMap<User, Conversation>();
 		this.userList = new UserList();
@@ -95,7 +108,12 @@ public class Session {
 
 			this.udpMessager.broadcast(new PacketHello(pseudo, 1234));
 		} catch (IOException e) {
+			// TODO this breaks the session
 			e.printStackTrace();
+			
+			if (this.udpMessager != null) {
+				this.udpMessager.stop();
+			}
 		}
 
 		try {
@@ -103,14 +121,37 @@ public class Session {
 			this.tcpReceiver.addPacketListener(new NetworkListener());
 
 		} catch (IOException e) {
+			// TODO this breaks the session
 			e.printStackTrace();
+			
+			try {
+				if (this.tcpReceiver != null)
+					this.tcpReceiver.stop();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+			}
 		}
 	}
 
-	public void addSessionListener(SessionListener l) {
-		this.sessionListener.add(l);
+	public void destroy() throws IOException {
+		IOException caught = null;
+		this.udpMessager.stop();
+		
+		try {
+			this.tcpReceiver.stop();
+		}
+		catch (IOException e) {
+			caught = e;
+		}
+		
+		// TODO close client sockets if some are still open.
+		
+		if (caught != null) {
+			// Before throwing this exception we have made sure to attempt to close everything.
+			throw caught;
+		}
 	}
-
+	
 	public void changePseudo(String newPseudo) {
 		// TODO changePseudo
 	}
