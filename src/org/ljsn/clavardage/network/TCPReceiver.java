@@ -109,7 +109,11 @@ public class TCPReceiver {
 							SelectionKey key = newSocket.register(selector, SelectionKey.OP_READ);
 							sockets.put(key, new SocketReader(newSocket));
 						}
-
+						
+						// TODO select is blocking, resulting in a problem with only one thread... Server should have 2 threads
+						if (sockets.isEmpty())
+							continue;
+						
 						// Socket
 						int readyChannels = selector.select();
 

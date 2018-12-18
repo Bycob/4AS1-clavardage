@@ -6,8 +6,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
-import javax.swing.JOptionPane;
-
+import org.ljsn.clavardage.core.User;
+import org.ljsn.clavardage.core.UserList;
 import org.ljsn.clavardage.network.Packet;
 import org.ljsn.clavardage.network.PacketHello;
 import org.ljsn.clavardage.network.PacketHelloBack;
@@ -19,7 +19,7 @@ import org.ljsn.clavardage.network.UDPMessager;
 public class TestClavardage {
 	
 	public static void main(String... args) throws IOException {
-		JOptionPane.showMessageDialog(null, "Fuck you", "hey", JOptionPane.CANCEL_OPTION);
+		// JOptionPane.showMessageDialog(null, "Test", "hey", JOptionPane.CANCEL_OPTION);
 		testTCP();
 	}
 	
@@ -37,23 +37,7 @@ public class TestClavardage {
 				}
 			}
 		});
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
-		/*User u1 = new User("toto", 22, "123.456.789.10");
-		User u2 = new User("louis jean", 22, "123.456.789.10");
-		User u3 = new User("singapore", 22, "123.456.789.10");
-		
-		UserList ul = new UserList();
-		ul.addUser(u1);
-		ul.addUser(u2);
-		ul.addUser(u3);*/
-		
-
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -65,7 +49,23 @@ public class TestClavardage {
 		sender.sendPacket(new PacketHello("dab2", 5555));
 		sender.sendPacket(new PacketHello("dab2", 5555));
 		sender.sendPacket(new PacketHello("dab4", 5555));
-		// sender.sendPacket(new PacketHelloBack(ul));
+
+		User u1 = new User("toto", 22, "123.456.789.10");
+		User u2 = new User("louis jean", 22, "123.456.789.10");
+		User u3 = new User("singapore", 22, "123.456.789.10");
+		
+		UserList ul = new UserList();
+		ul.addUser(u1);
+		ul.addUser(u2);
+		ul.addUser(u3);
+		
+		sender.sendPacket(new PacketHelloBack(ul));
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static void testUDP() throws IOException {
