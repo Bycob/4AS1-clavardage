@@ -2,8 +2,9 @@ package org.ljsn.clavardage.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class UserList implements Serializable {
+public class UserList implements Serializable, Iterable<User> {
 	private static final long serialVersionUID = -2785537094544793469L;
 	private ArrayList<User> users;
 	
@@ -39,6 +40,11 @@ public class UserList implements Serializable {
 	
 	public boolean hasPseudo(String pseudo) {
 		return getByPseudo(pseudo) != null;
+	}
+
+	@Override
+	public Iterator<User> iterator() {
+		return this.users.iterator();
 	}
 	
 	public boolean isEmpty() {

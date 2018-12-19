@@ -3,12 +3,13 @@ package org.ljsn.clavardage.gui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.ljsn.clavardage.core.Session;
 import org.ljsn.clavardage.core.User;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -18,23 +19,37 @@ public class MainViewController implements Initializable {
 	// Application part
 	
 	private ClavardageApp app;
-	private Session session;
 	
 	private User currentUser;
 	
 	public MainViewController(ClavardageApp app) {
 		this.app = app;
-		this.session = this.app.session;
 	}
 	
 	public void updateUsers() {
-		// this.session.getUserList();
+		this.usersBox.getChildren().clear();
+		
+		if (this.app.session == null)
+			return;
+		
+		for (User user : this.app.session.getUserList()) {
+			Button userButton = new Button();
+			userButton.setText(user.getPseudo());
+			userButton.setAlignment(Pos.CENTER);
+			userButton.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					openConversation(user);
+				}
+			});
+			
+			this.usersBox.getChildren().add(userButton);
+		}
 	}
 	
 	public void openConversation(User user) {
 		this.currentUser = user;
-		
-		// TODO openConversation
+		this.app.session.getConversation(this.currentUser);
 	}
 	
 	public void updateConversation() {
@@ -68,8 +83,8 @@ public class MainViewController implements Initializable {
 	
 	@FXML
 	protected void handleSend(ActionEvent evt) {
-		if (this.currentUser != null) {
-			this.session.sendMessage(this.currentUser, this.messageText.getText());
+		if (this.currentUser != null && this.app.session != null) {
+			this.app.session.sendMessage(this.currentUser, this.messageText.getText());
 			this.messageText.setText("");
 		}
 	}

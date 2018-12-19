@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.ljsn.clavardage.network.Packet;
 import org.ljsn.clavardage.network.PacketHello;
@@ -30,6 +34,9 @@ public class Session {
 
 	private UDPMessager udpMessager;
 	private TCPReceiver tcpReceiver;
+	
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
+	private Future<Boolean> connectionTimeout;
 
 	private class NetworkListener implements PacketListener {
 		//TODO login automatically after timeout
@@ -54,7 +61,7 @@ public class Session {
 					sendPacket(u, helloBack);
 					
 					// update ui
-					// TODO
+					sessionListener.onUserListChange();
 				} else {
 					// nothing
 				}
@@ -108,8 +115,6 @@ public class Session {
 		try {
 			this.udpMessager = new UDPMessager(PORT_UDP);
 			this.udpMessager.addPacketListener(new NetworkListener());
-
-			this.udpMessager.broadcast(new PacketHello(pseudo, 1234));
 		} catch (IOException e) {
 			// TODO this breaks the session
 			e.printStackTrace();
@@ -134,10 +139,32 @@ public class Session {
 				e2.printStackTrace();
 			}
 		}
+		
+		try {
+			this.udpMessager.broadcast(new PacketHello(pseudo, 1234));
+			connectionTimeout = executor.submit(new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					Thread.sleep(1000);
+					if (!connectionTimeout.isCancelled()) {
+						sessionListener.onConnectionSuccess();
+						return true;
+					}
+					else {
+						return false;
+					}
+				}
+				
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void destroy() throws IOException {
 		IOException caught = null;
+		
+		this.executor.shutdown();
 		this.udpMessager.stop();
 		
 		try {
@@ -154,6 +181,18 @@ public class Session {
 			throw caught;
 		}
 	}
+	
+	// GETTERS / SETTERS
+	
+	public UserList getUserList() {
+		return this.userList;
+	}
+	
+	public Conversation getConversation(User user) {
+		return this.conversations.get(user);
+	}
+	
+	// ACTIONS
 	
 	public void changePseudo(String newPseudo) {
 		// TODO changePseudo

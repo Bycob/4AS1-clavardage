@@ -7,6 +7,8 @@ import org.ljsn.clavardage.core.SessionListener;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class GUISessionListener implements SessionListener {
 
@@ -20,23 +22,44 @@ public class GUISessionListener implements SessionListener {
 	
 	@Override
 	public void onConnectionFailed(Exception error) {
+		error.printStackTrace();
 		runTask(new ExecOnJavaFXThread() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				System.out.println(Thread.currentThread().getName());
+				Alert alert = new Alert(AlertType.WARNING);
+				alert.setTitle("Connection failed");
+				alert.setContentText(error.getMessage());
 			}
 		});
 	}
 
 	@Override
 	public void onConnectionSuccess() {
-		
+		runTask(new ExecOnJavaFXThread() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				app.setScene(app.mainView);
+				app.mainViewController.updateUsers();
+			}
+		});
+	}
+	
+	@Override
+	public void onUserListChange() {
+		runTask(new ExecOnJavaFXThread() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				app.mainViewController.updateUsers();
+			}
+		});
 	}
 
 	@Override
 	public void onMessageSent() {
 		
 	}
+	
+	
 	
 	private void runTask(Task task) {
 		Thread th = new Thread(task);

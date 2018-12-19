@@ -16,7 +16,9 @@ public class ClavardageApp extends Application {
 	Session session;
 	
 	Parent connectPanel;
+	ConnectPanelController connectPanelController;
 	Parent mainView;
+	MainViewController mainViewController;
 	
 	
 	public ClavardageApp() {
@@ -31,11 +33,11 @@ public class ClavardageApp extends Application {
 		stage.setTitle("sCOOp-di-POOp");
 		
 		FXMLLoader loader = new FXMLLoader(ClavardageApp.class.getResource("fxml/connect-panel.fxml"));
-		loader.setController(new ConnectPanelController(this));
+		loader.setController(connectPanelController = new ConnectPanelController(this));
 		connectPanel = loader.load();
 		
 		loader = new FXMLLoader(ClavardageApp.class.getResource("fxml/main-view.fxml"));
-		loader.setController(new MainViewController(this));
+		loader.setController(mainViewController = new MainViewController(this));
 		mainView = loader.load();
 		
 		setScene(connectPanel);
