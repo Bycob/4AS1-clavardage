@@ -46,7 +46,9 @@ public class ClavardageApp extends Application {
 	@Override
 	public void stop() throws Exception {
 		super.stop();
-		this.session.destroy();
+		
+		if (this.session != null)
+			this.session.destroy();
 	}
 	
 	void setScene(Parent sceneRoot) {
