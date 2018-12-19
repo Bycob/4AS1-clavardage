@@ -98,11 +98,6 @@ public class UDPMessager {
 		this.socket.send(datagram);
 	}
 	
-	public boolean hasAddress(InetAddress address) {
-			System.out.println(this.socket.getRemoteSocketAddress());
-		return false;
-	}
-	
 	public void stop() {
 		this.running = false;
 		socket.close();

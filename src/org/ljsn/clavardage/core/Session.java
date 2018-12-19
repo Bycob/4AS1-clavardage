@@ -43,7 +43,7 @@ public class Session {
 		//TODO show message if not hello or helloback 
 		@Override
 		public void onPacket(InetAddress address, Packet packet) {
-			boolean isLocalAddress = udpMessager.hasAddress(address);
+			boolean isLocalAddress = false;
 
 			if (packet instanceof PacketHello) {
 				PacketHello hellopkt = (PacketHello) packet;
@@ -53,7 +53,7 @@ public class Session {
 				// verifies if pseudonym is taken
 				if (!userList.hasUser(u) && !isLocalAddress) {
 					userList.addUser(u);
-					System.out.println(address.getHostAddress() + " " + hellopkt.getPseudo());
+					System.out.println(address.getHostAddress() + " " + hellopkt.getPseudo() + " " + hellopkt.getTcpPort());
 					
 					// send hello back
 					PacketHelloBack helloBack = new PacketHelloBack(userList);
@@ -146,7 +146,7 @@ public class Session {
 		}
 		
 		try {
-			this.udpMessager.broadcast(new PacketHello(pseudo, 1234));
+			this.udpMessager.broadcast(new PacketHello(pseudo, PORT_TCP));
 			connectionTimeout = executor.submit(new Callable<Boolean>() {
 				@Override
 				public Boolean call() throws Exception {
@@ -194,7 +194,12 @@ public class Session {
 	}
 	
 	public Conversation getConversation(User user) {
-		return this.conversations.get(user);
+		Conversation conv = this.conversations.get(user);
+		if (conv == null) {
+			conv = new Conversation();
+			this.conversations.put(user, conv);
+		}
+		return conv;
 	}
 	
 	// ACTIONS
