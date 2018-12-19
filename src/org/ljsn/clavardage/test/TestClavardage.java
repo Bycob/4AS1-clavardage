@@ -24,7 +24,7 @@ public class TestClavardage {
 	}
 	
 	private static void testTCP() throws IOException {
-		TCPReceiver receiver = new TCPReceiver(5556);
+		TCPReceiver receiver = new TCPReceiver();
 		receiver.addPacketListener(new PacketListener() {
 			@Override
 			public void onPacket(InetAddress address, Packet packet) {
@@ -44,7 +44,7 @@ public class TestClavardage {
 			e.printStackTrace();
 		}
 		
-		TCPSender sender = new TCPSender("localhost", 5556);
+		TCPSender sender = new TCPSender("localhost", receiver.getPort());
 		sender.sendPacket(new PacketHello("dab", 5555));
 		sender.sendPacket(new PacketHello("dab2", 5555));
 		sender.sendPacket(new PacketHello("dab3", 5555));

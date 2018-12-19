@@ -20,7 +20,6 @@ import org.ljsn.clavardage.network.UDPMessager;
 
 public class Session {
 	public static final int PORT_UDP = 52684;
-	public static final int PORT_TCP = 1026;
 
 	private String pseudo;
 	/** This session has been initialized correctly. Valid pseudo name */
@@ -130,7 +129,7 @@ public class Session {
 		}
 
 		try {
-			this.tcpReceiver = new TCPReceiver(PORT_TCP);
+			this.tcpReceiver = new TCPReceiver();
 			this.tcpReceiver.addPacketListener(new NetworkListener());
 
 		} catch (IOException e) {
@@ -146,7 +145,7 @@ public class Session {
 		}
 		
 		try {
-			this.udpMessager.broadcast(new PacketHello(pseudo, PORT_TCP));
+			this.udpMessager.broadcast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
 			connectionTimeout = executor.submit(new Callable<Boolean>() {
 				@Override
 				public Boolean call() throws Exception {

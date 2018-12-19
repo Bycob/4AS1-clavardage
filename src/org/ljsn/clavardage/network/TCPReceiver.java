@@ -2,7 +2,6 @@ package org.ljsn.clavardage.network;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -71,34 +70,36 @@ public class TCPReceiver {
 	private int port;
 	private ArrayList<PacketListener> packetListeners;
 
-	private Thread receiveThread;
+	/** This thread runs the socket creation process. */
+	private Thread serverThread;
+	/** This thread runs the read operations performed on already opened sockets. */
+	private Thread socketsThread;
 	private boolean running;
+	
 	private ServerSocketChannel server;
+	private Selector selector;
 	private HashMap<SelectionKey, SocketReader> sockets = new HashMap<SelectionKey, SocketReader>();
 
 	
-	public TCPReceiver(int port) throws IOException {
-		this.port = port;
+	public TCPReceiver() throws IOException {
 		this.packetListeners = new ArrayList<PacketListener>();
 
 		try {
 			this.server = ServerSocketChannel.open();
-			this.server.socket().bind(new InetSocketAddress("localhost", port));
 			this.server.configureBlocking(false);
+			this.server.socket().bind(null);
+			this.port = this.server.socket().getLocalPort();
+
+			this.selector = null;
+			this.selector = Selector.open();
 		} catch (IOException e) {
 			throw e;
 		}
 
-		this.receiveThread = new Thread(new Runnable() {
+		this.serverThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Selector selector = null;
-				try {
-					selector = Selector.open();
-				} catch (IOException e) {
-					throw new RuntimeException("ReceiveThread could not launch");
-				}
-
+				
 				while (running) {
 					try {
 						// Server
@@ -109,13 +110,27 @@ public class TCPReceiver {
 							SelectionKey key = newSocket.register(selector, SelectionKey.OP_READ);
 							sockets.put(key, new SocketReader(newSocket));
 						}
-						
-						// TODO select is blocking, resulting in a problem with only one thread... Server should have 2 threads
-						if (sockets.isEmpty())
-							continue;
-						
-						// Socket
-						int readyChannels = selector.select();
+					} catch (IOException e) {
+						// TODO handle errors
+						System.err.println("Something went wrong. Error not handled yet. Error below");
+						e.printStackTrace();
+					}
+				}
+				
+				try {
+					server.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}, "TCP receiver thread");
+		
+		this.socketsThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (running) {
+					try {
+						int readyChannels = selector.selectNow();
 
 						if (readyChannels == 0)
 							continue;
@@ -143,15 +158,17 @@ public class TCPReceiver {
 						}
 					} catch (IOException e) {
 						// TODO handle errors
-						System.err.println("Something went wrong. Error not handled yet.");
+						System.err.println("Something went wrong. Error not handled yet. Error below");
+						e.printStackTrace();
 					}
 				}
 			}
-		}, "TCP receiver thread");
+		});
 
 		//this.receiveThread.setDaemon(true);
 		this.running = true;
-		this.receiveThread.start();
+		this.serverThread.start();
+		this.socketsThread.start();
 	}
 
 	public int getPort() {
@@ -169,7 +186,6 @@ public class TCPReceiver {
 	/** Stops the server and close every opened socket */
 	public void stop() throws IOException {
 		this.running = false;
-		// TODO close server in the server thread when it's not blocking (make it non-blocking BEFORE)
-		this.server.close();
+		this.selector.close();
 	}
 }

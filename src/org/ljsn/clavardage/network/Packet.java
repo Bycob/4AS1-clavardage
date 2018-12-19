@@ -42,16 +42,27 @@ public abstract class Packet implements Serializable {
 		byte[] array = new byte[from.remaining()];
 		from.get(array);
 		ByteArrayInputStream bis = new ByteArrayInputStream(array);
+		ObjectInputStream ois = null;
 		try {
-			ObjectInputStream ois = new ObjectInputStream(bis);
+			ois = new ObjectInputStream(bis);
 			Object obj = ois.readObject();
 			p = (Packet) obj;
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (ClassCastException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (ois != null) {
+				try {
+					ois.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		
@@ -75,11 +86,20 @@ public abstract class Packet implements Serializable {
 		writeContent(to);*/
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = null;
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos = new ObjectOutputStream(bos);
 			oos.writeObject(this);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if (oos != null) {
+				try {
+					oos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		to.put(bos.toByteArray());
