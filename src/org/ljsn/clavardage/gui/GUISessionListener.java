@@ -59,6 +59,10 @@ public class GUISessionListener implements SessionListener {
 		
 	}
 	
+	public void onMessageReceived() {
+		
+	}
+	
 	
 	
 	private void runTask(Task task) {

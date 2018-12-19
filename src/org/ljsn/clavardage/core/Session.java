@@ -40,7 +40,6 @@ public class Session {
 
 	private class NetworkListener implements PacketListener {
 		//TODO login automatically after timeout
-		//TODO check helloback pseudo 
 		//TODO show message if not hello or helloback 
 		@Override
 		public void onPacket(InetAddress address, Packet packet) {
@@ -66,10 +65,12 @@ public class Session {
 					// nothing
 				}
 			} else if (packet instanceof PacketHelloBack) {
-				// TODO what if "hello back" returns "pseudo already used" ?
-				
+				if (((PacketHelloBack) packet).pseudoUsed()) {
+					sessionListener.onConnectionFailed(new Exception("Pseudo already in use"));
+				}
 				if (userList.isEmpty()) {
 					userList = ((PacketHelloBack) packet).getActiveUsers();
+					sessionListener.onConnectionSuccess();
 				}
 				
 				// TODO update UI
@@ -85,7 +86,8 @@ public class Session {
 				
 				conv.addMessage(messagePkt.getMessage());
 			} else {
-				// exception
+				// not hello or helloback so it's a message for a conversation 
+				
 			}
 		}
 	}

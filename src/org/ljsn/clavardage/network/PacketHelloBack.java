@@ -8,8 +8,10 @@ public class PacketHelloBack extends Packet {
 	
 	private UserList activeUsers;
 	
+	private Boolean pseudoUsed = false;
+	
 	public PacketHelloBack() {
-		this(null);
+		this((UserList) null);
 	}
 	
 	public PacketHelloBack(UserList ul) {
@@ -17,8 +19,18 @@ public class PacketHelloBack extends Packet {
 		this.activeUsers = ul;
 	}
 	
+	public PacketHelloBack(Boolean b) {
+		super(Type.HELLO_BACK);
+		this.activeUsers = null;
+		this.pseudoUsed = true;
+	}
+	
 	public UserList getActiveUsers() {
 		return this.activeUsers;
+	}
+	
+	public Boolean pseudoUsed() {
+		return this.pseudoUsed;
 	}
 	
 	/*
