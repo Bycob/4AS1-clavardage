@@ -11,6 +11,7 @@ import org.ljsn.clavardage.network.PacketHelloBack;
 import org.ljsn.clavardage.network.PacketListener;
 import org.ljsn.clavardage.network.PacketMessage;
 import org.ljsn.clavardage.network.TCPReceiver;
+import org.ljsn.clavardage.network.TCPSender;
 import org.ljsn.clavardage.network.UDPMessager;
 
 public class Session {
@@ -31,7 +32,9 @@ public class Session {
 	private TCPReceiver tcpReceiver;
 
 	private class NetworkListener implements PacketListener {
-
+		//TODO login automatically after timeout
+		//TODO check helloback pseudo 
+		//TODO show message if not hello or helloback 
 		@Override
 		public void onPacket(InetAddress address, Packet packet) {
 			boolean isLocalAddress = address.isAnyLocalAddress() || address.isLoopbackAddress();
@@ -164,6 +167,12 @@ public class Session {
 	
 	
 	private void sendPacket(User user, Packet packet) {
-		// TODO sendPacket
+		try {
+			TCPSender ts = new TCPSender(user.getIpAddr(), user.getTcpPort());
+			ts.sendPacket(packet);
+			ts.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -13,7 +13,7 @@ public class TCPSender {
 		this.channel = SocketChannel.open(new InetSocketAddress(address, port));
 	}
 	
-	/** Sends packets to the des */
+	/** Sends packets to the destination */
 	public void sendPacket(Packet packet) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(0xffff);
 		buffer.position(4);
@@ -29,6 +29,11 @@ public class TCPSender {
 	}
 	
 	public void close() throws IOException {
-		this.channel.close();
+		try {
+			this.channel.close();
+		} catch (Exception e) {
+			// TODO
+			System.out.println("Socket could not close.");
+		}
 	}
 }
