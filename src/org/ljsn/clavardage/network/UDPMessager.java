@@ -28,6 +28,7 @@ public class UDPMessager {
 		try {
 			this.socket = new MulticastSocket(port);
 			
+			this.socket.setLoopbackMode(true);
 			// this.socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 			
 			this.group = InetAddress.getByName(MULTICAST_ADDRESS);
@@ -95,6 +96,11 @@ public class UDPMessager {
 		buffer.get(array);
 		DatagramPacket datagram = new DatagramPacket(array, array.length, this.group, this.port);
 		this.socket.send(datagram);
+	}
+	
+	public boolean hasAddress(InetAddress address) {
+			System.out.println(this.socket.getRemoteSocketAddress());
+		return false;
 	}
 	
 	public void stop() {

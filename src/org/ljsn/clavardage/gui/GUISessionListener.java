@@ -3,6 +3,7 @@ package org.ljsn.clavardage.gui;
 import java.util.LinkedList;
 
 import org.ljsn.clavardage.core.SessionListener;
+import org.ljsn.clavardage.core.User;
 
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -55,8 +56,13 @@ public class GUISessionListener implements SessionListener {
 	}
 
 	@Override
-	public void onMessageSent() {
-		
+	public void onMessageSent(User user) {
+		runTask(new ExecOnJavaFXThread() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				app.mainViewController.openConversation(user);
+			}
+		});
 	}
 	
 	public void onMessageReceived() {

@@ -1,8 +1,11 @@
 package org.ljsn.clavardage.gui;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import org.ljsn.clavardage.core.Conversation;
+import org.ljsn.clavardage.core.Message;
 import org.ljsn.clavardage.core.User;
 
 import javafx.event.ActionEvent;
@@ -49,12 +52,25 @@ public class MainViewController implements Initializable {
 	
 	public void openConversation(User user) {
 		this.currentUser = user;
-		this.app.session.getConversation(this.currentUser);
+		updateConversation();
 	}
 	
 	public void updateConversation() {
+		Conversation conv = this.app.session.getConversation(this.currentUser);
 		
-		// TODO updateConversation
+		StringBuilder content = new StringBuilder();
+		content.append("Conversation with : " + this.currentUser.getPseudo() + "\n\n\n");
+		
+		ArrayList<Message> messages = conv.getMessages();
+		// TODO add a maximum amount of messages displayed.
+		for (Message message : messages) {
+			content.append(message.getAuthor());
+			content.append(" : ");
+			content.append(message.getContent());
+			content.append("\n\n");
+		}
+		
+		this.conversationArea.setText(content.toString());
 	}
 	
 	// FXML part

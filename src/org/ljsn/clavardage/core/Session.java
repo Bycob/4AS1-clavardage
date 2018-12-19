@@ -43,7 +43,7 @@ public class Session {
 		//TODO show message if not hello or helloback 
 		@Override
 		public void onPacket(InetAddress address, Packet packet) {
-			boolean isLocalAddress = address.isAnyLocalAddress() || address.isLoopbackAddress();
+			boolean isLocalAddress = udpMessager.hasAddress(address);
 
 			if (packet instanceof PacketHello) {
 				PacketHello hellopkt = (PacketHello) packet;
@@ -85,6 +85,9 @@ public class Session {
 				}
 				
 				conv.addMessage(messagePkt.getMessage());
+				
+				// update UI
+				sessionListener.onMessageSent(u);
 			} else {
 				// not hello or helloback so it's a message for a conversation 
 				
