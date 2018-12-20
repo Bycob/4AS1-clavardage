@@ -1,9 +1,13 @@
 package org.ljsn.clavardage.core;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Message {
-    private Date timestamp;
+public class Message implements Serializable {
+    
+	private static final long serialVersionUID = 3526921158965796701L;
+	
+	private Date timestamp;
     private String content;
     private User author;
     
