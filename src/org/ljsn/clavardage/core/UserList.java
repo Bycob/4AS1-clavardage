@@ -22,6 +22,10 @@ public class UserList implements Serializable, Iterable<User> {
 		users.add(u);
 	}
 	
+	public boolean removeUser(User u) {
+		return users.remove(u);
+	}
+	
 	public boolean hasUser(User u) {
 		return users.contains(u);
 	}

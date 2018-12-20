@@ -30,6 +30,10 @@ public class User implements Serializable {
 		this.pseudo = p;
 	}
 	
+	public void setIpAddr(String ipaddr) {
+		this.ipAddr = ipaddr;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

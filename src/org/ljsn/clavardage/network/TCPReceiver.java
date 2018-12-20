@@ -107,8 +107,11 @@ public class TCPReceiver {
 						
 						if (newSocket != null) {
 							newSocket.configureBlocking(false);
-							newSocket.register(selector, SelectionKey.OP_READ);
-							sockets.put(newSocket.getRemoteAddress().toString(), new SocketReader(newSocket));
+							
+							synchronized (sockets) {
+								newSocket.register(selector, SelectionKey.OP_READ);
+								sockets.put(newSocket.getRemoteAddress().toString(), new SocketReader(newSocket));
+							}
 						}
 					} catch (IOException e) {
 						// TODO handle errors
@@ -141,7 +144,11 @@ public class TCPReceiver {
 						while (keyIterator.hasNext()) {
 
 							SelectionKey key = keyIterator.next();
-							SocketReader reader = sockets.get(((SocketChannel)key.channel()).getRemoteAddress().toString());
+							SocketReader reader;
+							
+							synchronized (sockets) {
+								reader = sockets.get(((SocketChannel)key.channel()).getRemoteAddress().toString());
+							}
 							//System.out.println(((SocketChannel)key.channel()).getRemoteAddress().toString());
 							//System.out.println(reader);
 
@@ -172,7 +179,7 @@ public class TCPReceiver {
 		this.serverThread.start();
 		this.socketsThread.start();
 	}
-
+	
 	public int getPort() {
 		return this.port;
 	}

@@ -52,19 +52,17 @@ public class Session {
 
 				// verifies if pseudonym is taken
 				if (!userList.hasUser(u) && !isLocalAddress) {
-					userList.addUser(u);
 					System.out.println(address.getHostAddress() + " " + hellopkt.getPseudo() + " " + hellopkt.getTcpPort());
 					
 					// send hello back
 					UserList ul = new UserList(userList);
-					try {
-						ul.addUser(new User(pseudo, tcpReceiver.getPort(), InetAddress.getLocalHost().getHostAddress()));
-					} catch (UnknownHostException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					ul.addUser(new User(pseudo, tcpReceiver.getPort(), "me"));
+					
 					PacketHelloBack helloBack = new PacketHelloBack(ul);
 					sendPacket(u, helloBack);
+					
+					// add user after sending the packet
+					userList.addUser(u);
 					
 					// update ui
 					sessionListener.onUserListChange();
@@ -77,6 +75,13 @@ public class Session {
 				}
 				if (userList.isEmpty()) {
 					userList = ((PacketHelloBack) packet).getActiveUsers();
+					
+					// replace sender address
+					User sender = userList.getByIpAddress("me");
+					if (sender != null) {
+						sender.setIpAddr(address.getHostAddress());
+					}
+					
 					sessionListener.onConnectionSuccess();
 				}
 				
@@ -84,17 +89,23 @@ public class Session {
 			} else if (packet instanceof PacketMessage) {
 				PacketMessage messagePkt = (PacketMessage) packet;
 				User u = userList.getByIpAddress(address.getHostAddress());
-				Conversation conv = conversations.get(u);
 				
-				if (conv == null) {
-					conv = new Conversation();
-					conversations.put(u, conv);
+				if (u != null) {
+					Conversation conv = conversations.get(u);
+					
+					if (conv == null) {
+						conv = new Conversation();
+						conversations.put(u, conv);
+					}
+					
+					conv.addMessage(messagePkt.getMessage());
+					
+					// update UI
+					sessionListener.onMessageSent(u);
 				}
-				
-				conv.addMessage(messagePkt.getMessage());
-				
-				// update UI
-				sessionListener.onMessageSent(u);
+				else {
+					System.err.println("Session received message from nobody");
+				}
 			} else {
 				// not hello or helloback so it's a message for a conversation 
 				
