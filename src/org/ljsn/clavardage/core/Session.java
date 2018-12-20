@@ -2,6 +2,7 @@ package org.ljsn.clavardage.core;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -55,7 +56,14 @@ public class Session {
 					System.out.println(address.getHostAddress() + " " + hellopkt.getPseudo() + " " + hellopkt.getTcpPort());
 					
 					// send hello back
-					PacketHelloBack helloBack = new PacketHelloBack(userList);
+					UserList ul = new UserList(userList);
+					try {
+						ul.addUser(new User(pseudo, tcpReceiver.getPort(), InetAddress.getLocalHost().getHostAddress()));
+					} catch (UnknownHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					PacketHelloBack helloBack = new PacketHelloBack(ul);
 					sendPacket(u, helloBack);
 					
 					// update ui

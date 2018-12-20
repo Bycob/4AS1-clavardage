@@ -12,6 +12,12 @@ public class UserList implements Serializable, Iterable<User> {
 		this.users = new ArrayList<User>();
 	}
 	
+	
+	// clone UserList
+	public UserList(UserList clone) {
+	    this.users = new ArrayList<User>(clone.users);
+	}
+	
 	public void addUser(User u) {
 		users.add(u);
 	}
