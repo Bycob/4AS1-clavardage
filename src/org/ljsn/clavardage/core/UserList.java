@@ -18,6 +18,15 @@ public class UserList implements Serializable, Iterable<User> {
 	    this.users = new ArrayList<User>(clone.users);
 	}
 	
+	/** Adds every unkown user from the other list */
+	public void addUserList(UserList other) {
+		for (User user : other) {
+			if (!this.users.contains(user)) {
+				this.users.add(user);
+			}
+		}
+	}
+	
 	public void addUser(User u) {
 		users.add(u);
 	}

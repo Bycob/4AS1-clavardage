@@ -48,13 +48,13 @@ public class Session {
 		//TODO show message if not hello or helloback 
 		@Override
 		public void onPacket(InetAddress address, Packet packet) {
+			logger.log(Level.INFO, "Received packet " + packet.getClass().getSimpleName() + " from " + address.toString());
 			boolean isLocalAddress = false;
 
 			if (packet instanceof PacketHello) {
 				PacketHello hellopkt = (PacketHello) packet;
 				// generate new user instance using pseudonym
 				User u = new User(hellopkt.getPseudo(), hellopkt.getTcpPort(), address.getHostAddress());
-				logger.log(Level.INFO, "Received packet Hello", hellopkt);
 
 				// verifies if pseudonym is taken
 				if (!userList.hasUser(u) && !isLocalAddress) {
@@ -76,30 +76,27 @@ public class Session {
 				}
 			} else if (packet instanceof PacketHelloBack) {
 				PacketHelloBack hellobackpkt = (PacketHelloBack) packet;
-				logger.log(Level.INFO, "Received packet HelloBack", hellobackpkt);
 				
 				if (hellobackpkt.pseudoUsed()) {
+					logger.warning("Pseudo is already taken");
 					sessionListener.onConnectionFailed(new Exception("Pseudo already in use"));
 				}
-				if (userList.isEmpty()) {
+				else {
 					userList = hellobackpkt.getActiveUsers();
+					logger.log(Level.INFO, "Updated user list");
 					
 					// replace sender address
 					User sender = userList.getByIpAddress("me");
 					if (sender != null) {
 						sender.setIpAddr(address.getHostAddress());
-						logger.log(Level.INFO, "Changed remote user address");
 					}
 					
+					// stop timeout and update UI
 					connectionTimeout.cancel(true);
 					sessionListener.onConnectionSuccess();
 				}
-				
-				// TODO update UI
 			} else if (packet instanceof PacketMessage) {
 				PacketMessage messagePkt = (PacketMessage) packet;
-				logger.log(Level.INFO, "Received packet MESSAGE", packet);
-				
 				User u = userList.getByIpAddress(address.getHostAddress());
 				
 				if (u != null) {
@@ -113,10 +110,10 @@ public class Session {
 					conv.addMessage(messagePkt.getMessage());
 					
 					// update UI
-					sessionListener.onMessageSent(u);
+					sessionListener.onMessageReceived(u);
 				}
 				else {
-					System.err.println("Session received message from nobody");
+					logger.warning("Message sender unkown");
 				}
 			} else {
 				// not hello or helloback so it's a message for a conversation 
