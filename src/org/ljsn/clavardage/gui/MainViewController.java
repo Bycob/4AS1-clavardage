@@ -43,6 +43,8 @@ public class MainViewController implements Initializable {
 			Button userButton = new Button();
 			userButton.setText(user.getPseudo());
 			userButton.setAlignment(Pos.CENTER);
+			userButton.setMaxWidth(Double.MAX_VALUE);
+			userButton.setPrefHeight(50);
 			userButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
@@ -83,6 +85,7 @@ public class MainViewController implements Initializable {
 		}
 		
 		this.conversationArea.setText(content.toString());
+		this.conversationArea.positionCaret(content.length());
 	}
 	
 	// FXML part

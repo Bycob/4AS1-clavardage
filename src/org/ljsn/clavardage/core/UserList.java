@@ -77,6 +77,8 @@ public class UserList implements Serializable, Iterable<User> {
 		return null;
 	}
 	
+	
+	
 	public boolean isEmpty() {
 		return users.isEmpty();
 	}

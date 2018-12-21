@@ -29,8 +29,8 @@ public class Session {
 	private static Logger logger = Logger.getLogger(Session.class.getName());
 
 	private String pseudo;
-	/** This session has been initialized correctly. Valid pseudo name */
-	private boolean valid = false;
+	/** refused is set to true if user has picked a bad username */
+	private boolean refused = false;
 	/** List of active users */
 	private UserList userList;
 	private User currentUser;
@@ -46,10 +46,13 @@ public class Session {
 	private Future<Boolean> connectionTimeout;
 
 	private class NetworkListener implements PacketListener {
-		//TODO login automatically after timeout
-		//TODO show message if not hello or helloback 
 		@Override
-		public void onPacket(InetAddress address, Packet packet) {
+		public void onPacket(InetAddress address, Packet packet) { synchronized (Session.this) {
+			
+			if (refused) {
+				return;
+			}
+			
 			logger.log(Level.INFO, "Received packet " + packet.getClass().getSimpleName() + " from " + address.getHostAddress());
 			boolean isLocalAddress = false;
 
@@ -86,6 +89,7 @@ public class Session {
 				
 				if (hellobackpkt.pseudoUsed()) {
 					logger.warning("Pseudo is already taken");
+					refused = true;
 					sessionListener.onConnectionFailed(new Exception("Pseudo already in use"));
 				}
 				else {
@@ -145,7 +149,7 @@ public class Session {
 				// not hello or helloback so it's a message for a conversation 
 				
 			}
-		}
+		}}
 	}
 
 	/**
@@ -220,7 +224,7 @@ public class Session {
 		}
 	}
 
-	public void destroy() throws IOException {
+	public synchronized void destroy() throws IOException {
 		IOException caught = null;
 		
 		// send Goodbye packet to notify users of end of activity 
@@ -246,12 +250,13 @@ public class Session {
 	
 	// GETTERS / SETTERS
 	
-	public UserList getUserList() {
-		return this.userList;
+	public synchronized UserList getUserList() {
+		return new UserList(this.userList);
 	}
 	
 	/** Returns conversation with a particular user. If the conversation does
 	 * not exist then it's created. */
+	// TODO synchronize
 	public Conversation getConversation(User user) {
 		Conversation conv = this.conversations.get(user);
 		if (conv == null) {
@@ -263,11 +268,11 @@ public class Session {
 	
 	// ACTIONS
 	
-	public void changePseudo(String newPseudo) {
+	public synchronized void changePseudo(String newPseudo) {
 		// TODO changePseudo
 	}
 
-	public void sendMessage(User user, String content) {
+	public synchronized void sendMessage(User user, String content) {
 		Message message = new Message(new Date(), content, this.currentUser);
 		getConversation(user).addMessage(message);
 		this.sessionListener.onMessageSent(user);

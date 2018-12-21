@@ -14,13 +14,13 @@
           <bottom>
             <HBox prefHeight="30.0" prefWidth="200.0">
               <children>
-                <TextField id="messageSent" fx:id="messageText" maxHeight="1.7976931348623157E308" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                <TextField id="messageSent" fx:id="messageText" maxHeight="1.7976931348623157E308" onAction="#handleSend" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                 <Button fx:id="sendButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSend" text="Send" HBox.hgrow="NEVER" />
               </children>
             </HBox>
           </bottom>
           <center>
-            <TextArea fx:id="conversationArea" prefWidth="200.0" wrapText="true" />
+            <TextArea fx:id="conversationArea" editable="false" prefWidth="200.0" wrapText="true" />
           </center>
         </BorderPane>
       </center>
