@@ -35,8 +35,10 @@ public class TCPReceiver {
 		public void processReadIteration() throws IOException {
 			int byteRead = channel.read(buffer);
 			
-			if (byteRead == 0) 
+			if (byteRead < 0) 
 				return;
+			
+			logger.log(Level.INFO, "Read " + byteRead + " bytes on socket " + channel.getRemoteAddress());
 
 			boolean hasReadableData = true;
 			do {
@@ -160,7 +162,7 @@ public class TCPReceiver {
 							synchronized (sockets) {
 								reader = sockets.get(key);
 							}
-							logger.log(Level.INFO, "Reading socket " + ((SocketChannel)key.channel()).getRemoteAddress().toString());
+							//logger.log(Level.INFO, "Reading socket " + ((SocketChannel)key.channel()).getRemoteAddress().toString());
 							//System.out.println(reader);
 
 							if (key.isReadable() && reader != null) {
