@@ -74,6 +74,7 @@ public class Session {
 				}
 				if (userList.isEmpty()) {
 					userList = ((PacketHelloBack) packet).getActiveUsers();
+					
 					// replace sender address
 					User sender = userList.getByIpAddress("me");
 					if (sender != null) {

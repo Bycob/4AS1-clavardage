@@ -78,7 +78,7 @@ public class TCPReceiver {
 	
 	private ServerSocketChannel server;
 	private Selector selector;
-	private HashMap<String, SocketReader> sockets = new HashMap<String, SocketReader>();
+	private HashMap<SelectionKey, SocketReader> sockets = new HashMap<SelectionKey, SocketReader>();
 
 	
 	public TCPReceiver() throws IOException {
@@ -109,8 +109,8 @@ public class TCPReceiver {
 							newSocket.configureBlocking(false);
 							
 							synchronized (sockets) {
-								newSocket.register(selector, SelectionKey.OP_READ);
-								sockets.put(newSocket.getRemoteAddress().toString(), new SocketReader(newSocket));
+								SelectionKey key = newSocket.register(selector, SelectionKey.OP_READ);
+								sockets.put(key, new SocketReader(newSocket));
 
 								System.out.println("[TCPReceiver] new socket registered");
 							}
@@ -149,7 +149,7 @@ public class TCPReceiver {
 							SocketReader reader;
 							
 							synchronized (sockets) {
-								reader = sockets.get(((SocketChannel)key.channel()).getRemoteAddress().toString());
+								reader = sockets.get(key);
 							}
 							//System.out.println(((SocketChannel)key.channel()).getRemoteAddress().toString());
 							//System.out.println(reader);
