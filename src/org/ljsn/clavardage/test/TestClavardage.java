@@ -74,10 +74,10 @@ public class TestClavardage {
 	private static void testUDP() throws IOException {
 		DatagramChannel sender = DatagramChannel.open();
 		
-		UDPMessager messager = new UDPMessager(5555);
+		UDPMessager messager = new UDPMessager("225.4.5.6", 5555);
 		ByteBuffer buffer = ByteBuffer.wrap(new byte[] {5, 5, 5});
 		sender.send(buffer, new InetSocketAddress("localhost", 5555));
-		messager.broadcast(new PacketHello("mikouri", 5555));
+		messager.multicast(new PacketHello("mikouri", 5555));
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {

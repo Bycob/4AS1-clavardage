@@ -19,6 +19,7 @@ import org.ljsn.clavardage.network.TCPSender;
 import org.ljsn.clavardage.network.UDPMessager;
 
 public class Session {
+	public static final String MULTICAST_ADDRESS = "225.4.5.6";
 	public static final int PORT_UDP = 52684;
 
 	private String pseudo;
@@ -136,7 +137,7 @@ public class Session {
 		this.userList = new UserList();
 
 		try {
-			this.udpMessager = new UDPMessager(PORT_UDP);
+			this.udpMessager = new UDPMessager(MULTICAST_ADDRESS, PORT_UDP);
 			this.udpMessager.addPacketListener(new NetworkListener());
 		} catch (IOException e) {
 			// TODO this breaks the session
@@ -164,7 +165,7 @@ public class Session {
 		}
 		
 		try {
-			this.udpMessager.broadcast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
+			this.udpMessager.multicast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
 			connectionTimeout = executor.submit(new Callable<Boolean>() {
 				@Override
 				public Boolean call() throws Exception {

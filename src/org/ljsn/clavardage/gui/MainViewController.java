@@ -64,6 +64,7 @@ public class MainViewController implements Initializable {
 		
 		ArrayList<Message> messages = conv.getMessages();
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+		
 		// TODO add a maximum amount of messages displayed.
 		for (Message message : messages) {
 			content.append("[").append(format.format(message.getTime())).append("] ");

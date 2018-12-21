@@ -120,6 +120,12 @@ public class TCPReceiver {
 						System.err.println("Something went wrong. Error not handled yet. Error below");
 						e.printStackTrace();
 					}
+					
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 				
 				try {
@@ -135,7 +141,7 @@ public class TCPReceiver {
 			public void run() {
 				while (running) {
 					try {
-						int readyChannels = selector.selectNow();
+						int readyChannels = selector.select(1);
 
 						if (readyChannels == 0)
 							continue;

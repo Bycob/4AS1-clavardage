@@ -8,9 +8,12 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+/**
+ * Class for sending and receiving UDP messages
+ * 
+ * This class is used mainly for UDP broadcast and multicast.
+ */
 public class UDPMessager {
-	
-	public static final String MULTICAST_ADDRESS = "225.4.5.6";
 	
 	private boolean running;
 	private ArrayList<PacketListener> packetListeners = new ArrayList<PacketListener>();
@@ -22,16 +25,16 @@ public class UDPMessager {
 	private Thread receiveThread;
 	
 	
-	public UDPMessager(int port) throws IOException {
+	public UDPMessager(String multicastAddress, int port) throws IOException {
 		this.port = port;
 		
 		try {
 			this.socket = new MulticastSocket(port);
 			
-			this.socket.setLoopbackMode(true);
-			// this.socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			this.socket.setLoopbackMode(false);
+			this.socket.setReuseAddress(true);
 			
-			this.group = InetAddress.getByName(MULTICAST_ADDRESS);
+			this.group = InetAddress.getByName(multicastAddress);
 			this.socket.joinGroup(this.group);
 		} catch (IOException e) {
 			throw e;
@@ -59,6 +62,7 @@ public class UDPMessager {
 						else {
 							e.printStackTrace();
 						}
+						running = false;
 					}
 					catch (IOException e) {
 						running = false;
@@ -90,7 +94,8 @@ public class UDPMessager {
 		return buffer;
 	}
 	
-	public void broadcast(Packet packet) throws IOException {
+	/** Sends multicast packet to the set multicast address. */
+	public void multicast(Packet packet) throws IOException {
 		ByteBuffer buffer = getPacketBuffer(packet);
 		byte[] array = new byte[buffer.remaining()];
 		buffer.get(array);
