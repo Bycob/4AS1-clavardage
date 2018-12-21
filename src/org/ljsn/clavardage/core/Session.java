@@ -118,6 +118,9 @@ public class Session {
 					userList.removeUser(exitingUser);										
 				}
 				
+				// update userlist on gui
+				sessionListener.onUserListChange();
+				
 			} else if (packet instanceof PacketMessage) {
 				PacketMessage messagePkt = (PacketMessage) packet;
 				User u = userList.getByIpAddress(address.getHostAddress());
