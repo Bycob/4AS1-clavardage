@@ -32,6 +32,7 @@ public class Session {
 	private boolean valid = false;
 	/** List of active users */
 	private UserList userList;
+	private User currentUser;
 	/** Hash table of conversations associated to users */
 	private HashMap<User, Conversation> conversations;
 
@@ -54,20 +55,21 @@ public class Session {
 			if (packet instanceof PacketHello) {
 				PacketHello hellopkt = (PacketHello) packet;
 				// generate new user instance using pseudonym
-				User u = new User(hellopkt.getPseudo(), hellopkt.getTcpPort(), address.getHostAddress());
+				User newUser = new User(hellopkt.getPseudo(), hellopkt.getTcpPort(), address.getHostAddress());
 
 				// verifies if pseudonym is taken
-				if (!userList.hasUser(u) && !isLocalAddress) {
+				// TODO re-think how it should work when we accept loopback packets
+				if (!userList.hasPseudo(newUser.getPseudo()) && !isLocalAddress) {
 					// send hello back
-					UserList ul = new UserList(userList);
-					ul.addUser(new User(pseudo, tcpReceiver.getPort(), "me"));
+					UserList sentUserList = new UserList(userList);
+					sentUserList.addUser(currentUser);
 					
-					PacketHelloBack helloBack = new PacketHelloBack(ul);
-					sendPacket(u, helloBack);
+					PacketHelloBack helloBack = new PacketHelloBack(sentUserList);
+					sendPacket(newUser, helloBack);
 					
 					// add user after sending the packet
-					userList.addUser(u);
-					logger.log(Level.INFO, "Added user " + u.getPseudo());
+					userList.addUser(newUser);
+					logger.log(Level.INFO, "Added user " + newUser.getPseudo());
 					
 					// update ui
 					sessionListener.onUserListChange();
@@ -82,7 +84,7 @@ public class Session {
 					sessionListener.onConnectionFailed(new Exception("Pseudo already in use"));
 				}
 				else {
-					userList = hellobackpkt.getActiveUsers();
+					userList.addUserList(hellobackpkt.getActiveUsers());
 					logger.log(Level.INFO, "Updated user list");
 					
 					// replace sender address
@@ -173,8 +175,9 @@ public class Session {
 		}
 		
 		try {
+			this.currentUser = new User(pseudo, tcpReceiver.getPort(), "me");
 			this.udpMessager.multicast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
-			connectionTimeout = executor.submit(new Callable<Boolean>() {
+			this.connectionTimeout = executor.submit(new Callable<Boolean>() {
 				@Override
 				public Boolean call() throws Exception {
 					Thread.sleep(1000);
@@ -238,8 +241,9 @@ public class Session {
 	}
 
 	public void sendMessage(User user, String content) {
-		Message message = new Message(new Date(), content, user);
+		Message message = new Message(new Date(), content, this.currentUser);
 		getConversation(user).addMessage(message);
+		this.sessionListener.onMessageSent(user);
 		
 		PacketMessage messagePkt = new PacketMessage(message);
 		sendPacket(user, messagePkt);

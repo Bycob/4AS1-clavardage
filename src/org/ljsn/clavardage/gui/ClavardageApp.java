@@ -54,7 +54,10 @@ public class ClavardageApp extends Application {
 	}
 	
 	void setScene(Parent sceneRoot) {
-		this.primaryStage.setScene(new Scene(sceneRoot));
+		Scene currentScene = this.primaryStage.getScene();
+		if (currentScene == null || currentScene.getRoot() != sceneRoot) {
+			this.primaryStage.setScene(new Scene(sceneRoot));
+		}
 	}
 	
 	public static void main(String[] args) {
