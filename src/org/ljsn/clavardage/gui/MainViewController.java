@@ -14,6 +14,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -61,8 +62,20 @@ public class MainViewController implements Initializable {
 		updateConversation(user);
 	}
 	
+	public void addNotification(User user) {
+		for (Node node : this.usersBox.getChildren()) {
+			if (node instanceof Button) {
+				Button button = (Button) node;
+				if (button.getText().equals(user.getPseudo())) {
+					button.setText(user.getPseudo() + " *");
+				}
+			}
+		}
+	}
+	
 	public void updateConversation(User user) {
 		if (this.currentUser != user) {
+			addNotification(user);
 			return;
 		}
 		
