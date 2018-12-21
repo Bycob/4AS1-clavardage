@@ -30,6 +30,8 @@ public class GUISessionListener implements SessionListener {
 				Alert alert = new Alert(AlertType.WARNING);
 				alert.setTitle("Connection failed");
 				alert.setContentText(error.getMessage());
+				
+				app.connectPanelController.reset();
 			}
 		});
 	}
@@ -65,11 +67,12 @@ public class GUISessionListener implements SessionListener {
 		});
 	}
 	
+	@Override
 	public void onMessageReceived(User user) {
 		runTask(new ExecOnJavaFXThread() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				app.mainViewController.openConversation(user);
+				app.mainViewController.updateConversation(user);
 			}
 		});
 	}

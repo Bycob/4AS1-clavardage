@@ -1,5 +1,7 @@
 package org.ljsn.clavardage.gui;
 
+import java.io.IOException;
+
 import org.ljsn.clavardage.core.Session;
 
 import javafx.event.ActionEvent;
@@ -17,7 +19,20 @@ public class ConnectPanelController {
 	public ConnectPanelController(ClavardageApp app) {
 		this.app = app;
 	}
-
+	
+	/** Method called after disabling or deconnection from a session. */
+	public void reset() {
+		try {
+			this.app.session.destroy();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.app.session = null;
+		
+		this.app.setScene(this.app.connectPanel);
+		this.connectButton.setDisable(false);
+	}
+	
 	// FXML part
 	
 	@FXML
@@ -30,6 +45,7 @@ public class ConnectPanelController {
 	protected void handleConnect(ActionEvent evt) {
 		try {
 			this.app.session = new Session(this.pseudoText.getText(), new GUISessionListener(this.app));
+			this.connectButton.setDisable(true);
 		}
 		catch (IllegalArgumentException e) {
 			Alert alert = new Alert(AlertType.WARNING);

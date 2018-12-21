@@ -10,19 +10,19 @@ public class PacketHelloBack extends Packet {
 	
 	private Boolean pseudoUsed = false;
 	
+	public static PacketHelloBack createPseudoAlreadyUsedPacket() {
+		PacketHelloBack pkt = new PacketHelloBack();
+		pkt.pseudoUsed = true;
+		return pkt;
+	}
+	
 	public PacketHelloBack() {
-		this((UserList) null);
+		this(new UserList());
 	}
 	
 	public PacketHelloBack(UserList ul) {
 		super(Type.HELLO_BACK);
 		this.activeUsers = ul;
-	}
-	
-	public PacketHelloBack(Boolean b) {
-		super(Type.HELLO_BACK);
-		this.activeUsers = null;
-		this.pseudoUsed = true;
 	}
 	
 	public UserList getActiveUsers() {

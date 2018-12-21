@@ -70,15 +70,19 @@ public class Session {
 					
 					// add user after sending the packet
 					userList.addUser(newUser);
-					logger.log(Level.INFO, "Added user " + newUser.getPseudo());
+					logger.log(Level.INFO, "Added new user " + newUser.getPseudo() + " to UserList");
 					
 					// update ui
 					sessionListener.onUserListChange();
 				} else {
-					// nothing
+					PacketHelloBack helloBack = PacketHelloBack.createPseudoAlreadyUsedPacket();
+					sendPacket(newUser, helloBack);
+					
+					logger.log(Level.INFO, "Refused user " + newUser.getPseudo() + " because they have a bad pseudo.");
 				}
 			} else if (packet instanceof PacketHelloBack) {
 				PacketHelloBack hellobackpkt = (PacketHelloBack) packet;
+				connectionTimeout.cancel(true);
 				
 				if (hellobackpkt.pseudoUsed()) {
 					logger.warning("Pseudo is already taken");
@@ -88,14 +92,19 @@ public class Session {
 					userList.addUserList(hellobackpkt.getActiveUsers());
 					logger.log(Level.INFO, "Updated user list");
 					
-					// replace sender address
+					// replace sender address, or discard it if sender is already in the list
 					User sender = userList.getByIpAddress("me");
+					
 					if (sender != null) {
-						sender.setIpAddr(address.getHostAddress());
+						if (userList.getByIpAddress(address.getHostAddress()) != null) {
+							userList.removeUser(sender);
+						}
+						else {
+							sender.setIpAddr(address.getHostAddress());
+						}
 					}
 					
 					// stop timeout and update UI
-					connectionTimeout.cancel(true);
 					sessionListener.onConnectionSuccess();
 				}
 			} else if (packet instanceof PacketGoodbye) {

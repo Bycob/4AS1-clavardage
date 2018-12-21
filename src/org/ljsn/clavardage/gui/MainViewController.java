@@ -20,6 +20,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class MainViewController implements Initializable {
+	private static final int MAX_MESSAGE_DISPLAYED_DEFAULT = 50;
+	
+	
 	// Application part
 	
 	private ClavardageApp app;
@@ -53,10 +56,14 @@ public class MainViewController implements Initializable {
 	
 	public void openConversation(User user) {
 		this.currentUser = user;
-		updateConversation();
+		updateConversation(user);
 	}
 	
-	public void updateConversation() {
+	public void updateConversation(User user) {
+		if (this.currentUser != user) {
+			return;
+		}
+		
 		Conversation conv = this.app.session.getConversation(this.currentUser);
 		
 		StringBuilder content = new StringBuilder();
@@ -66,7 +73,8 @@ public class MainViewController implements Initializable {
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 		
 		// TODO add a maximum amount of messages displayed.
-		for (Message message : messages) {
+		for (int i = Math.max(messages.size() - MAX_MESSAGE_DISPLAYED_DEFAULT, 0); i < messages.size(); ++i) {
+			Message message = messages.get(i);
 			content.append("[").append(format.format(message.getTime())).append("] ");
 			content.append(message.getAuthor().getPseudo());
 			content.append(" : ");

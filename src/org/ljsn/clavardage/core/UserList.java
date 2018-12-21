@@ -21,7 +21,7 @@ public class UserList implements Serializable, Iterable<User> {
 	/** Adds every unkown user from the other list */
 	public void addUserList(UserList other) {
 		for (User user : other) {
-			if (!this.users.contains(user)) {
+			if (!this.hasUser(user)) {
 				this.users.add(user);
 			}
 		}
