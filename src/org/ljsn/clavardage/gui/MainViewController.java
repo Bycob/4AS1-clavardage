@@ -62,12 +62,12 @@ public class MainViewController implements Initializable {
 		updateConversation(user);
 	}
 	
-	public void addNotification(User user) {
+	public void setNotification(User user, boolean notif) {
 		for (Node node : this.usersBox.getChildren()) {
 			if (node instanceof Button) {
 				Button button = (Button) node;
 				if (button.getText().equals(user.getPseudo())) {
-					button.setText(user.getPseudo() + " *");
+					button.setText(user.getPseudo() + (notif ? " *" : ""));
 				}
 			}
 		}
@@ -75,9 +75,11 @@ public class MainViewController implements Initializable {
 	
 	public void updateConversation(User user) {
 		if (this.currentUser != user) {
-			addNotification(user);
+			setNotification(user, true);
 			return;
 		}
+		
+		setNotification(user, false);
 		
 		Conversation conv = this.app.session.getConversation(this.currentUser);
 		
