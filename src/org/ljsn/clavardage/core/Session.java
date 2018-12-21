@@ -50,7 +50,7 @@ public class Session {
 		//TODO show message if not hello or helloback 
 		@Override
 		public void onPacket(InetAddress address, Packet packet) {
-			logger.log(Level.INFO, "Received packet " + packet.getClass().getSimpleName() + " from " + address.toString());
+			logger.log(Level.INFO, "Received packet " + packet.getClass().getSimpleName() + " from " + address.getHostAddress());
 			boolean isLocalAddress = false;
 
 			if (packet instanceof PacketHello) {
@@ -110,7 +110,7 @@ public class Session {
 			} else if (packet instanceof PacketGoodbye) {
 				// get user ip address and pseudo
 				String exitingUserPseudo = ((PacketGoodbye) packet).getPseudo();
-				String exitingUserIP = address.toString();
+				String exitingUserIP = address.getHostAddress();
 				
 				// if the user's identity is valid, remove the user from userList
 				User exitingUser = userList.pseudoMatchesIP(exitingUserPseudo, exitingUserIP);

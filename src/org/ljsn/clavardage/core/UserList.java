@@ -71,7 +71,7 @@ public class UserList implements Serializable, Iterable<User> {
 		Iterator<User> userIterator = this.users.iterator();
 		while(userIterator.hasNext()) {
 			User currentUser = userIterator.next();
-			if (currentUser.getPseudo() == pseudo && currentUser.getIpAddr() == ipAddr)
+			if (currentUser.getPseudo().equals(pseudo) && currentUser.getIpAddr().equals(ipAddr))
 				return currentUser;
 		}
 		return null;
