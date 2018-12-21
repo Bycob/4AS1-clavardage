@@ -18,7 +18,8 @@ public abstract class Packet implements Serializable {
 	public enum Type {
 		HELLO(PacketHello.class),
 		HELLO_BACK(PacketHelloBack.class),
-		MESSAGE(PacketMessage.class);
+		MESSAGE(PacketMessage.class),
+		GOODBYE(PacketMessage.class);
 		
 		public final Class<? extends Packet> packetClass;
 		

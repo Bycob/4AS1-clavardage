@@ -66,6 +66,17 @@ public class UserList implements Serializable, Iterable<User> {
 		return this.users.iterator();
 	}
 	
+	// returns user corresponding to pseudo and ip addr if exists
+	public User pseudoMatchesIP(String pseudo, String ipAddr) {
+		Iterator<User> userIterator = this.users.iterator();
+		while(userIterator.hasNext()) {
+			User currentUser = userIterator.next();
+			if (currentUser.getPseudo() == pseudo && currentUser.getIpAddr() == ipAddr)
+				return currentUser;
+		}
+		return null;
+	}
+	
 	public boolean isEmpty() {
 		return users.isEmpty();
 	}

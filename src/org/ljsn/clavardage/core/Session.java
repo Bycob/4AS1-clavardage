@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.ljsn.clavardage.network.Packet;
+import org.ljsn.clavardage.network.PacketGoodbye;
 import org.ljsn.clavardage.network.PacketHello;
 import org.ljsn.clavardage.network.PacketHelloBack;
 import org.ljsn.clavardage.network.PacketListener;
@@ -97,6 +98,17 @@ public class Session {
 					connectionTimeout.cancel(true);
 					sessionListener.onConnectionSuccess();
 				}
+			} else if (packet instanceof PacketGoodbye) {
+				// get user ip address and pseudo
+				String exitingUserPseudo = ((PacketGoodbye) packet).getPseudo();
+				String exitingUserIP = address.toString();
+				
+				// if the user's identity is valid, remove the user from userList
+				User exitingUser = userList.pseudoMatchesIP(exitingUserPseudo, exitingUserIP);
+				if ( exitingUser != null) {
+					userList.removeUser(exitingUser);										
+				}
+				
 			} else if (packet instanceof PacketMessage) {
 				PacketMessage messagePkt = (PacketMessage) packet;
 				User u = userList.getByIpAddress(address.getHostAddress());
@@ -199,6 +211,9 @@ public class Session {
 	public void destroy() throws IOException {
 		IOException caught = null;
 		
+		// send Goodbye packet to notify users of end of activity 
+		this.udpMessager.multicast(new PacketGoodbye(this.pseudo));
+		
 		this.executor.shutdown();
 		this.udpMessager.stop();
 		
@@ -248,7 +263,6 @@ public class Session {
 		PacketMessage messagePkt = new PacketMessage(message);
 		sendPacket(user, messagePkt);
 	}
-	
 	
 	private void sendPacket(User user, Packet packet) {
 		try {
