@@ -2,7 +2,6 @@ package org.ljsn.clavardage.core;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -75,13 +74,13 @@ public class Session {
 				}
 				if (userList.isEmpty()) {
 					userList = ((PacketHelloBack) packet).getActiveUsers();
-					
 					// replace sender address
 					User sender = userList.getByIpAddress("me");
 					if (sender != null) {
 						sender.setIpAddr(address.getHostAddress());
 					}
 					
+					connectionTimeout.cancel(true);
 					sessionListener.onConnectionSuccess();
 				}
 				
@@ -211,6 +210,8 @@ public class Session {
 		return this.userList;
 	}
 	
+	/** Returns conversation with a particular user. If the conversation does
+	 * not exist then it's created. */
 	public Conversation getConversation(User user) {
 		Conversation conv = this.conversations.get(user);
 		if (conv == null) {
@@ -228,6 +229,8 @@ public class Session {
 
 	public void sendMessage(User user, String content) {
 		Message message = new Message(new Date(), content, user);
+		getConversation(user).addMessage(message);
+		
 		PacketMessage messagePkt = new PacketMessage(message);
 		sendPacket(user, messagePkt);
 	}

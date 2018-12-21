@@ -65,10 +65,14 @@ public class GUISessionListener implements SessionListener {
 		});
 	}
 	
-	public void onMessageReceived() {
-		
+	public void onMessageReceived(User user) {
+		runTask(new ExecOnJavaFXThread() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				app.mainViewController.openConversation(user);
+			}
+		});
 	}
-	
 	
 	
 	private void runTask(Task task) {

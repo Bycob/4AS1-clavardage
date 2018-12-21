@@ -29,7 +29,7 @@ public class TestClavardage {
 			@Override
 			public void onPacket(InetAddress address, Packet packet) {
 				if (packet instanceof PacketHello) {
-					System.out.println(((PacketHello) packet).getPseudo());
+					System.out.print(((PacketHello) packet).getPseudo() + " ");
 					System.out.println(((PacketHello) packet).getTcpPort());
 				}
 				else if (packet instanceof PacketHelloBack) {
@@ -45,10 +45,10 @@ public class TestClavardage {
 		}
 		
 		TCPSender sender = new TCPSender("localhost", receiver.getPort());
-		sender.sendPacket(new PacketHello("dab", 5555));
-		sender.sendPacket(new PacketHello("dab2", 5555));
-		sender.sendPacket(new PacketHello("dab3", 5555));
-		sender.sendPacket(new PacketHello("dab4", 5555));
+		sender.sendPacket(new PacketHello("dab1", 1));
+		sender.sendPacket(new PacketHello("dab2", 2));
+		sender.sendPacket(new PacketHello("dab3", 3));
+		sender.sendPacket(new PacketHello("dab4", 4));
 
 		User u1 = new User("toto", 22, "123.456.789.10");
 		User u2 = new User("louis jean", 22, "123.456.789.10");

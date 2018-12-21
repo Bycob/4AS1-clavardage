@@ -6,4 +6,5 @@ public interface SessionListener {
 	public void onConnectionSuccess();
 	public void onUserListChange();
 	public void onMessageSent(User user);
+	public void onMessageReceived(User user);
 }

@@ -111,6 +111,8 @@ public class TCPReceiver {
 							synchronized (sockets) {
 								newSocket.register(selector, SelectionKey.OP_READ);
 								sockets.put(newSocket.getRemoteAddress().toString(), new SocketReader(newSocket));
+
+								System.out.println("[TCPReceiver] new socket registered");
 							}
 						}
 					} catch (IOException e) {
@@ -152,7 +154,7 @@ public class TCPReceiver {
 							//System.out.println(((SocketChannel)key.channel()).getRemoteAddress().toString());
 							//System.out.println(reader);
 
-							if (key.isReadable()) {
+							if (key.isReadable() && reader != null) {
 								reader.processReadIteration();
 								
 								for (Packet packet : reader.packets) {
@@ -161,6 +163,11 @@ public class TCPReceiver {
 										l.onPacket(socketAddr, packet);
 									}
 								}
+								
+								reader.packets.clear();
+							}
+							else {
+								throw new IOException("Unkown socket " + key.toString());
 							}
 
 							keyIterator.remove();
@@ -172,7 +179,7 @@ public class TCPReceiver {
 					}
 				}
 			}
-		});
+		}, "TCP sockets thread");
 
 		//this.receiveThread.setDaemon(true);
 		this.running = true;

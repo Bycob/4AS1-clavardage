@@ -1,6 +1,7 @@
 package org.ljsn.clavardage.gui;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -62,9 +63,11 @@ public class MainViewController implements Initializable {
 		content.append("Conversation with : " + this.currentUser.getPseudo() + "\n\n\n");
 		
 		ArrayList<Message> messages = conv.getMessages();
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 		// TODO add a maximum amount of messages displayed.
 		for (Message message : messages) {
-			content.append(message.getAuthor());
+			content.append("[").append(format.format(message.getTime())).append("] ");
+			content.append(message.getAuthor().getPseudo());
 			content.append(" : ");
 			content.append(message.getContent());
 			content.append("\n\n");
