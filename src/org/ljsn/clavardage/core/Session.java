@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.ljsn.clavardage.network.Packet;
 import org.ljsn.clavardage.network.PacketHello;
@@ -21,6 +23,9 @@ import org.ljsn.clavardage.network.UDPMessager;
 public class Session {
 	public static final String MULTICAST_ADDRESS = "225.4.5.6";
 	public static final int PORT_UDP = 52684;
+	
+	
+	private static Logger logger = Logger.getLogger(Session.class.getName());
 
 	private String pseudo;
 	/** This session has been initialized correctly. Valid pseudo name */
@@ -49,11 +54,10 @@ public class Session {
 				PacketHello hellopkt = (PacketHello) packet;
 				// generate new user instance using pseudonym
 				User u = new User(hellopkt.getPseudo(), hellopkt.getTcpPort(), address.getHostAddress());
+				logger.log(Level.INFO, "Received packet Hello", hellopkt);
 
 				// verifies if pseudonym is taken
 				if (!userList.hasUser(u) && !isLocalAddress) {
-					System.out.println(address.getHostAddress() + " " + hellopkt.getPseudo() + " " + hellopkt.getTcpPort());
-					
 					// send hello back
 					UserList ul = new UserList(userList);
 					ul.addUser(new User(pseudo, tcpReceiver.getPort(), "me"));
@@ -63,6 +67,7 @@ public class Session {
 					
 					// add user after sending the packet
 					userList.addUser(u);
+					logger.log(Level.INFO, "Added user " + u.getPseudo());
 					
 					// update ui
 					sessionListener.onUserListChange();
@@ -70,16 +75,20 @@ public class Session {
 					// nothing
 				}
 			} else if (packet instanceof PacketHelloBack) {
-				if (((PacketHelloBack) packet).pseudoUsed()) {
+				PacketHelloBack hellobackpkt = (PacketHelloBack) packet;
+				logger.log(Level.INFO, "Received packet HelloBack", hellobackpkt);
+				
+				if (hellobackpkt.pseudoUsed()) {
 					sessionListener.onConnectionFailed(new Exception("Pseudo already in use"));
 				}
 				if (userList.isEmpty()) {
-					userList = ((PacketHelloBack) packet).getActiveUsers();
+					userList = hellobackpkt.getActiveUsers();
 					
 					// replace sender address
 					User sender = userList.getByIpAddress("me");
 					if (sender != null) {
 						sender.setIpAddr(address.getHostAddress());
+						logger.log(Level.INFO, "Changed remote user address");
 					}
 					
 					connectionTimeout.cancel(true);
@@ -89,6 +98,8 @@ public class Session {
 				// TODO update UI
 			} else if (packet instanceof PacketMessage) {
 				PacketMessage messagePkt = (PacketMessage) packet;
+				logger.log(Level.INFO, "Received packet MESSAGE", packet);
+				
 				User u = userList.getByIpAddress(address.getHostAddress());
 				
 				if (u != null) {

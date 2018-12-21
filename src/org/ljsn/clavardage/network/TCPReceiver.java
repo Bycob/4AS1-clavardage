@@ -12,10 +12,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TCPReceiver {
-
-
+	
+	private static Logger logger = Logger.getLogger(TCPReceiver.class.getName());
+	
 	private class SocketReader {
 		public SocketChannel channel;
 		public ByteBuffer buffer;
@@ -111,8 +114,8 @@ public class TCPReceiver {
 							synchronized (sockets) {
 								SelectionKey key = newSocket.register(selector, SelectionKey.OP_READ);
 								sockets.put(key, new SocketReader(newSocket));
-
-								System.out.println("[TCPReceiver] new socket registered");
+								
+								logger.log(Level.INFO, "New socket registered : " + newSocket.getRemoteAddress());
 							}
 						}
 					} catch (IOException e) {
@@ -157,7 +160,7 @@ public class TCPReceiver {
 							synchronized (sockets) {
 								reader = sockets.get(key);
 							}
-							//System.out.println(((SocketChannel)key.channel()).getRemoteAddress().toString());
+							logger.log(Level.INFO, "Reading socket " + ((SocketChannel)key.channel()).getRemoteAddress().toString());
 							//System.out.println(reader);
 
 							if (key.isReadable() && reader != null) {

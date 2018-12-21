@@ -7,6 +7,7 @@ import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * Class for sending and receiving UDP messages
@@ -14,6 +15,8 @@ import java.util.ArrayList;
  * This class is used mainly for UDP broadcast and multicast.
  */
 public class UDPMessager {
+	
+	private static Logger logger = Logger.getLogger(UDPMessager.class.getName());
 	
 	private boolean running;
 	private ArrayList<PacketListener> packetListeners = new ArrayList<PacketListener>();
@@ -57,7 +60,7 @@ public class UDPMessager {
 					}
 					catch (SocketException e) {
 						if ("socket closed".equals(e.getMessage())) {
-							System.err.println("Socket closed");
+							logger.warning("Socket closed");
 						}
 						else {
 							e.printStackTrace();
