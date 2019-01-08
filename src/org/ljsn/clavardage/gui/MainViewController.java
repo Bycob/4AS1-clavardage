@@ -59,6 +59,7 @@ public class MainViewController implements Initializable {
 	
 	public void openConversation(User user) {
 		this.currentUser = user;
+		setNotification(user, false);
 		updateConversation(user);
 	}
 	
