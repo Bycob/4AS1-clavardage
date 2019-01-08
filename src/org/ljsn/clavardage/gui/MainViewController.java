@@ -67,7 +67,7 @@ public class MainViewController implements Initializable {
 		for (Node node : this.usersBox.getChildren()) {
 			if (node instanceof Button) {
 				Button button = (Button) node;
-				if (button.getText().equals(user.getPseudo())) {
+				if (button.getText().startsWith(user.getPseudo())) {
 					button.setText(user.getPseudo() + (notif ? " *" : ""));
 				}
 			}
