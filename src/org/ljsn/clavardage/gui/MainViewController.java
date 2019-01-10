@@ -3,6 +3,7 @@ package org.ljsn.clavardage.gui;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.ljsn.clavardage.core.Conversation;
@@ -18,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 
 public class MainViewController implements Initializable {
@@ -49,11 +51,27 @@ public class MainViewController implements Initializable {
 			userButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
-					openConversation(user);
+					if (user.getPseudo().startsWith(app.session.getCurrentUser().getPseudo())) {
+						openChangePseudoDialog();
+					}
+					else {
+						openConversation(user);
+					}
 				}
 			});
 			
 			this.usersBox.getChildren().add(userButton);
+		}
+	}
+	
+	public void openChangePseudoDialog() {
+		TextInputDialog dialog = new TextInputDialog();
+		dialog.setTitle("Change pseudo");
+		dialog.setContentText("Select a new pseudo : ");
+		Optional<String> result = dialog.showAndWait();
+		
+		if (result.isPresent()) {
+			this.app.session.changePseudo(result.get());
 		}
 	}
 	

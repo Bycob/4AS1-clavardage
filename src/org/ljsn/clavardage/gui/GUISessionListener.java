@@ -31,6 +31,8 @@ public class GUISessionListener implements SessionListener {
 				alert.setTitle("Connection failed");
 				alert.setContentText(error.getMessage());
 				
+				alert.showAndWait();
+				
 				app.connectPanelController.reset();
 			}
 		});
