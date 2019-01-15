@@ -254,6 +254,10 @@ public class Session {
 		return new UserList(this.userList);
 	}
 	
+	public synchronized User getCurrentUser() {
+		return this.currentUser;
+	}
+	
 	/** Returns conversation with a particular user. If the conversation does
 	 * not exist then it's created. */
 	// TODO synchronize
