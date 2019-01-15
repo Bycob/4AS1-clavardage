@@ -130,13 +130,7 @@ public class Session {
 				User u = userList.getByIpAddress(address.getHostAddress());
 				
 				if (u != null) {
-					Conversation conv = conversations.get(u);
-					
-					if (conv == null) {
-						conv = new Conversation();
-						conversations.put(u, conv);
-					}
-					
+					Conversation conv = getConversation(u);
 					conv.addMessage(messagePkt.getMessage());
 					
 					// update UI
