@@ -3,6 +3,14 @@
   <groupId>projet_poo</groupId>
   <artifactId>projet_poo</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>2.12.3</version>
+    </dependency>
+</dependencies>
+  
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
