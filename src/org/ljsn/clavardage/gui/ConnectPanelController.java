@@ -44,7 +44,7 @@ public class ConnectPanelController {
 	@FXML
 	protected void handleConnect(ActionEvent evt) {
 		try {
-			this.app.session = new Session(this.pseudoText.getText(), new GUISessionListener(this.app));
+			this.app.session = new Session(this.pseudoText.getText(), new GUISessionListener(this.app), true);
 			this.connectButton.setDisable(true);
 		}
 		catch (IllegalArgumentException e) {

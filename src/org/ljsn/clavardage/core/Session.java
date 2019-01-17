@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +22,8 @@ import org.ljsn.clavardage.network.PacketMessage;
 import org.ljsn.clavardage.network.TCPReceiver;
 import org.ljsn.clavardage.network.TCPSender;
 import org.ljsn.clavardage.network.UDPMessager;
+import org.ljsn.clavardage.presence.PresenceClient;
+import org.ljsn.clavardage.presence.PresenceClientListener;
 
 public class Session {
 	public static final String MULTICAST_ADDRESS = "225.4.5.6";
@@ -40,12 +44,15 @@ public class Session {
 	private SessionListener sessionListener;
 
 	private UDPMessager udpMessager;
+	private PresenceClient presenceClient;
 	private TCPReceiver tcpReceiver;
 	
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
+	private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 	private Future<Boolean> connectionTimeout;
-
-	private class NetworkListener implements PacketListener {
+	
+	
+	private class SessionPacketListener implements PacketListener {
 		@Override
 		public void onPacket(InetAddress address, Packet packet) { synchronized (Session.this) {
 			
@@ -145,6 +152,34 @@ public class Session {
 			}
 		}}
 	}
+	
+	private class SessionPresenceClientListener implements PresenceClientListener {
+		
+		@Override
+		public void onConnectResponse() {
+			
+		}
+		
+		@Override
+		public void onConnectFailure(Exception e) {
+			
+		}
+		
+		@Override
+		public void onGetUserListResponse(UserList ul) {
+			
+		}
+
+		@Override
+		public void onChangePseudo() { 
+			
+		}
+		
+		@Override
+		public void onChangePseudoFailure(Exception e) {
+			
+		}
+	}
 
 	/**
 	 * Create a session.
@@ -152,7 +187,7 @@ public class Session {
 	 * @param pseudo
 	 * @throws IllegalArgumentException If the pseudo is not valid (locally).
 	 */
-	public Session(String pseudo, SessionListener l) {
+	public Session(String pseudo, SessionListener l, boolean presenceServer) {
 		// check pseudo validity
 		if (pseudo.isEmpty()) {
 			throw new IllegalArgumentException("Pseudo should be at least one character long");
@@ -167,10 +202,11 @@ public class Session {
 
 		this.conversations = new HashMap<User, Conversation>();
 		this.userList = new UserList();
-
+		
+		// Init udp
 		try {
 			this.udpMessager = new UDPMessager(MULTICAST_ADDRESS, PORT_UDP);
-			this.udpMessager.addPacketListener(new NetworkListener());
+			this.udpMessager.addPacketListener(new SessionPacketListener());
 		} catch (IOException e) {
 			// TODO this breaks the session
 			e.printStackTrace();
@@ -180,9 +216,10 @@ public class Session {
 			}
 		}
 
+		// Init tcp
 		try {
 			this.tcpReceiver = new TCPReceiver();
-			this.tcpReceiver.addPacketListener(new NetworkListener());
+			this.tcpReceiver.addPacketListener(new SessionPacketListener());
 
 		} catch (IOException e) {
 			// TODO this breaks the session
@@ -196,25 +233,52 @@ public class Session {
 			}
 		}
 		
-		try {
-			this.currentUser = new User(pseudo, tcpReceiver.getPort(), "me");
-			this.udpMessager.multicast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
-			this.connectionTimeout = executor.submit(new Callable<Boolean>() {
+		// Init presence client
+		
+		if (presenceServer) {
+			// TODO let the user choose the ports + address
+			this.presenceClient = new PresenceClient("127.0.0.1", 8000);
+			this.presenceClient.setListener(new SessionPresenceClientListener());
+			
+			// TODO move this to when we actually get connected
+			// Poll server every few seconds to actualize user list.
+			this.scheduledExecutor.scheduleAtFixedRate(new Runnable() {
 				@Override
-				public Boolean call() throws Exception {
-					Thread.sleep(1000);
-					if (!connectionTimeout.isCancelled()) {
-						sessionListener.onConnectionSuccess();
-						return true;
-					}
-					else {
-						return false;
+				public void run() {
+					synchronized (presenceClient) {
+						presenceClient.requestUserList();
 					}
 				}
-				
-			});
-		} catch (IOException e) {
-			e.printStackTrace();
+			}, 0, 3000, TimeUnit.MILLISECONDS);
+		}
+		
+		
+		// Session initialization
+		
+		if (this.presenceClient != null) {
+			this.presenceClient.connect(pseudo, tcpReceiver.getPort());
+		}
+		else {
+			try {
+				this.currentUser = new User(pseudo, tcpReceiver.getPort(), "me");
+				this.udpMessager.multicast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
+				this.connectionTimeout = executor.submit(new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						Thread.sleep(1000);
+						if (!connectionTimeout.isCancelled()) {
+							sessionListener.onConnectionSuccess();
+							return true;
+						}
+						else {
+							return false;
+						}
+					}
+					
+				});
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -222,7 +286,12 @@ public class Session {
 		IOException caught = null;
 		
 		// send Goodbye packet to notify users of end of activity 
-		this.udpMessager.multicast(new PacketGoodbye(this.pseudo));
+		if (this.presenceClient != null) {
+			this.presenceClient.disconnect();
+		}
+		else {
+			this.udpMessager.multicast(new PacketGoodbye(this.pseudo));
+		}
 		
 		this.executor.shutdown();
 		this.udpMessager.stop();
@@ -267,7 +336,12 @@ public class Session {
 	// ACTIONS
 	
 	public synchronized void changePseudo(String newPseudo) {
-		// TODO changePseudo
+		if (this.presenceClient != null) {
+			this.presenceClient.changePseudo(newPseudo);
+		}
+		else {
+			// TODO changePseudo
+		}
 	}
 
 	public synchronized void sendMessage(User user, String content) {

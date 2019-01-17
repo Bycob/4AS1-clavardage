@@ -8,6 +8,8 @@ public class PresenceClient {
 	private String serverAddress;
 	private int port;
 	
+	private PresenceClientListener listener;
+	
 	
 	/** Create a client attached to a presence server.
 	 * @param serverAddress The address of the presence server this client
@@ -16,6 +18,11 @@ public class PresenceClient {
 	public PresenceClient(String serverAddress, int port) {
 		this.serverAddress = serverAddress;
 		this.port = port;
+	}
+	
+	
+	public void setListener(PresenceClientListener listener) {
+		this.listener = listener;
 	}
 	
 	/** Connect to presence server
