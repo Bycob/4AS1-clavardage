@@ -77,8 +77,8 @@ public class PresenceClient {
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		
-		connection.setConnectTimeout(500);
-		connection.setReadTimeout(1000);
+		connection.setConnectTimeout(10000);
+		connection.setReadTimeout(10000);
 		
 		connection.setDoOutput(true);
 		request.writeToStream(connection.getOutputStream());

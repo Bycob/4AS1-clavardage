@@ -3,6 +3,9 @@ package org.ljsn.clavardage.core;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
 public class Message implements Serializable {
     
 	private static final long serialVersionUID = 3526921158965796701L;
@@ -17,6 +20,10 @@ public class Message implements Serializable {
     	this.author = author;
     }
     
+    public void setAuthor(User author) {
+    	this.author = author;
+    }
+    
     public Date getTime() {
     	return this.timestamp;
     }
@@ -28,4 +35,10 @@ public class Message implements Serializable {
     public User getAuthor() {
     	return this.author;
     } 
+    
+    public DBObject MessageToDBO() {
+    	return new BasicDBObject().append("timestamp",this.timestamp)
+    							  .append("content",this.content)
+    							  .append("author",this.author.getIpAddr());
+    }
 }

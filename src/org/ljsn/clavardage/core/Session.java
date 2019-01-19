@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.ljsn.clavardage.database.Database;
+import org.ljsn.clavardage.database.DatabaseController;
 import org.ljsn.clavardage.network.Packet;
 import org.ljsn.clavardage.network.PacketGoodbye;
 import org.ljsn.clavardage.network.PacketHello;
@@ -48,6 +50,7 @@ public class Session {
 	private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private Future<Boolean> connectionTimeout;
 	
+	private DatabaseController dbc = new DatabaseController();
 	
 	/** Internal class for managing packets. */
 	private class SessionPacketListener implements PacketListener {
@@ -136,7 +139,11 @@ public class Session {
 				
 				if (u != null) {
 					Conversation conv = getConversation(u);
-					conv.addMessage(messagePkt.getMessage());
+					Message msg = messagePkt.getMessage();
+					msg.setAuthor(u);
+					conv.addMessage(msg);
+					
+					dbc.updateConversation(conv, u);
 					
 					// update UI
 					sessionListener.onMessageReceived(u);
@@ -167,6 +174,8 @@ public class Session {
 		if (l == null) {
 			throw new NullPointerException("No session listener found");
 		}
+		
+		
 
 		this.pseudo = pseudo;
 		this.sessionListener = l;
@@ -273,6 +282,8 @@ public class Session {
 	public synchronized void destroy() throws IOException {
 		IOException caught = null;
 		
+		// close database
+		dbc.close();
 		// send Goodbye packet to notify users of end of activity
 		if (!this.refused) {
 			try {
@@ -325,6 +336,7 @@ public class Session {
 		synchronized (this) {
 			conv = this.conversations.get(user);
 			if (conv == null) {
+				dbc.newConversation(user);
 				conv = new Conversation();
 				this.conversations.put(user, conv);
 			}
@@ -365,7 +377,9 @@ public class Session {
 
 	public synchronized void sendMessage(User user, String content) {
 		Message message = new Message(new Date(), content, this.currentUser);
-		getConversation(user).addMessage(message);
+		Conversation conv = getConversation(user);
+		conv.addMessage(message);
+		dbc.updateConversation(conv, user);
 		this.sessionListener.onMessageSent(user);
 		
 		PacketMessage messagePkt = new PacketMessage(message);
