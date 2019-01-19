@@ -3,6 +3,8 @@ package org.ljsn.clavardage.presence;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.ljsn.clavardage.core.User;
 import org.ljsn.clavardage.core.UserList;
@@ -14,6 +16,8 @@ import com.sun.net.httpserver.HttpServer;
 public class PresenceServer implements HttpHandler {
 	
 	public static final int DEFAULT_SERVER_PORT = 8000;
+
+	private static Logger logger = Logger.getLogger(PresenceServer.class.getName());
 	
 	
 	private HttpServer server;
@@ -26,6 +30,8 @@ public class PresenceServer implements HttpHandler {
 		
 		this.users = new UserList();
 		
+		logger.log(Level.INFO, "Started presence server on localhost:" + port);
+		
 		this.server.start();
 	}
 
@@ -34,27 +40,26 @@ public class PresenceServer implements HttpHandler {
 		InetAddress address = exchange.getRemoteAddress().getAddress();
 		Request request = Request.readFromStream(exchange.getRequestBody());
 		
-		// TODO send headers
-		int length = 2;
-		exchange.sendResponseHeaders(200, length);
+		logger.log(Level.INFO, "Received request of type " + request.getClass().getSimpleName() + " from " + address);
 		
 		if (request instanceof RequestConnect) {
 			RequestConnect requestConnect = (RequestConnect) request;
 			User ipUser = this.users.getByIpAddress(address.getHostAddress());
 			
 			if (ipUser != null) {
-				// TODO return "already connected"
+				requestConnect.setResult(RequestConnect.Result.ALREADY_CONNECTED);
 			}
 			else {
 				User pseudoUser = this.users.getByPseudo(requestConnect.getPseudo());
 				
 				if (pseudoUser != null) {
-					// TODO return "already used pseudo"
+					requestConnect.setResult(RequestConnect.Result.PSEUDO_ALREADY_USED);
 				}
 				else {
 					User newUser = new User(requestConnect.getPseudo(), requestConnect.getTcpPort(), address.getHostAddress());
 					this.users.addUser(newUser);
-					// TODO return "you are now connected"
+
+					requestConnect.setResult(RequestConnect.Result.SUCCESS);
 				}
 			}
 		}
@@ -66,31 +71,43 @@ public class PresenceServer implements HttpHandler {
 				User pseudoUser = this.users.getByPseudo(requestChangePseudo.getPseudo());
 				
 				if (pseudoUser != null) {
-					// TODO return "pseudo already taken"
+					requestChangePseudo.setResult(RequestChangePseudo.Result.ALREADY_USED_PSEUDO);
 				}
 				else {
 					ipUser.setPseudo(requestChangePseudo.getPseudo());
-					// TODO return "pseudo changed"
+					requestChangePseudo.setResult(RequestChangePseudo.Result.SUCCESS);
 				}
 			}
 			else {
-				// TODO return "user not found"
+				requestChangePseudo.setResult(RequestChangePseudo.Result.USER_NOT_FOUND);
 			}
 		}
 		else if (request instanceof RequestDisconnect) {
+			RequestDisconnect requestDisconnect = (RequestDisconnect) request;
 			User ipUser = this.users.getByIpAddress(address.getHostAddress());
 			
 			if (ipUser != null) {
 				this.users.removeUser(ipUser);
-				// TODO return "you are removed"
+				requestDisconnect.setResult(RequestDisconnect.Result.SUCCESS);
 			}
 			else {
-				// TODO return "no user with this host address"
+				requestDisconnect.setResult(RequestDisconnect.Result.USER_NOT_FOUND);
 			}
 		}
 		else if (request instanceof RequestGetUserList) {
-			// TODO return "users"
+			UserList ul = new UserList(this.users);
+			((RequestGetUserList) request).setUserList(ul);
 		}
+		
+		long length = request.length();
+		exchange.sendResponseHeaders(200, length);
+		
+		request.writeToStream(exchange.getResponseBody());
+	}
+	
+	@Override
+	public void finalize() {
+		logger.log(Level.INFO, "Server destroyed, application stopping...");
 	}
 	
 	

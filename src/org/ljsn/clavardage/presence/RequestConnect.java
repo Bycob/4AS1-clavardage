@@ -30,4 +30,8 @@ public class RequestConnect extends Request {
 	public void setResult(Result result) {
 		this.result = result;
 	}
+	
+	public Result getResult() {
+		return this.result;
+	}
 }

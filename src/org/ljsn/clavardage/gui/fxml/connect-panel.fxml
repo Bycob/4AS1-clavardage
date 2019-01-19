@@ -2,6 +2,7 @@
 
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
@@ -20,10 +21,32 @@
             <Font name="System Bold" size="30.0" />
           </font>
         </Label>
+        <GridPane hgap="10.0" prefWidth="432.0" vgap="5.0" VBox.vgrow="NEVER">
+          <children>
+            <TextField fx:id="hostText" disable="true" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Hôte" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Label text="Port" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+            <TextField fx:id="portText" disable="true" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <CheckBox fx:id="presenceServerCheck" mnemonicParsing="false" onAction="#onPresenceServerCheckChange" text="Se connecter à un serveur de présence" textAlignment="LEFT" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" />
+            <Label text="Pseudo" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
+            <TextField fx:id="pseudoText" alignment="TOP_CENTER" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+          </children>
+          <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="266.0" minWidth="10.0" prefWidth="121.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="352.0" minWidth="10.0" prefWidth="349.0" />
+          </columnConstraints>
+          <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+          </padding>
+          <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          </rowConstraints>
+        </GridPane>
         <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="395.0" spacing="20.0" VBox.vgrow="NEVER">
           <children>
-            <Label text="Pseudo" />
-            <TextField fx:id="pseudoText" alignment="TOP_CENTER" prefWidth="200.0" HBox.hgrow="NEVER" />
             <Button fx:id="connectButton" cancelButton="false" defaultButton="false" mnemonicParsing="false" onAction="#handleConnect" text="Connect" textAlignment="CENTER" />
           </children>
         </HBox>

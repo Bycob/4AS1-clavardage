@@ -13,4 +13,8 @@ public class RequestGetUserList extends Request {
 	public void setUserList(UserList list) {
 		this.userList = list;
 	}
+	
+	public UserList getUserList() {
+		return this.userList;
+	}
 }

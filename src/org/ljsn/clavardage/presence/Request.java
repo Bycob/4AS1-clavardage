@@ -26,22 +26,23 @@ public abstract class Request {
 	}
 	
 	public static Request readFromStream(InputStream stream) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-		StringBuilder input = new StringBuilder();
-		
-		String line = reader.readLine();
-		if (line != null) {
-			RequestType type = RequestType.valueOf(line);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+			StringBuilder input = new StringBuilder();
 			
-			while ((line = reader.readLine()) != null) {
-				input.append(line);
+			String line = reader.readLine();
+			if (line != null) {
+				RequestType type = RequestType.valueOf(line);
+				
+				while ((line = reader.readLine()) != null) {
+					input.append(line);
+				}
+				
+				Gson gson = new Gson();
+				return gson.fromJson(input.toString(), type.myClass);
 			}
-			
-			Gson gson = new Gson();
-			return gson.fromJson(input.toString(), type.myClass);
-		}
-		else {
-			throw new IOException("Could not read the type of the request");
+			else {
+				throw new IOException("Could not read the type of the request");
+			}
 		}
 	}
 	
@@ -53,11 +54,23 @@ public abstract class Request {
 		this.type = type;
 	}
 	
-	public void writeToStream(OutputStream stream) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
-		writer.write(this.type.toString());
-		writer.write("\n");
+	private StringBuilder buildRequestString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.type.toString());
+		builder.append("\n");
 		Gson gson = new Gson();
-		writer.write(gson.toJson(this));
+		builder.append(gson.toJson(this));
+		return builder;
+	}
+	
+	public long length() {
+		return buildRequestString().toString().getBytes().length;
+	}
+	
+	public void writeToStream(OutputStream stream) throws IOException {
+		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
+			writer.write(buildRequestString().toString());
+			writer.flush();
+		}
 	}
 }

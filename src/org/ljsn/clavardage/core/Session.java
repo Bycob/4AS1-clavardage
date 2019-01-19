@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,7 +22,6 @@ import org.ljsn.clavardage.network.TCPReceiver;
 import org.ljsn.clavardage.network.TCPSender;
 import org.ljsn.clavardage.network.UDPMessager;
 import org.ljsn.clavardage.presence.PresenceClient;
-import org.ljsn.clavardage.presence.PresenceClientListener;
 
 public class Session {
 	public static final String MULTICAST_ADDRESS = "225.4.5.6";
@@ -47,11 +45,11 @@ public class Session {
 	private PresenceClient presenceClient;
 	private TCPReceiver tcpReceiver;
 	
-	private ExecutorService executor = Executors.newSingleThreadExecutor();
-	private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private Future<Boolean> connectionTimeout;
 	
 	
+	/** Internal class for managing packets. */
 	private class SessionPacketListener implements PacketListener {
 		@Override
 		public void onPacket(InetAddress address, Packet packet) { synchronized (Session.this) {
@@ -153,33 +151,6 @@ public class Session {
 		}}
 	}
 	
-	private class SessionPresenceClientListener implements PresenceClientListener {
-		
-		@Override
-		public void onConnectResponse() {
-			
-		}
-		
-		@Override
-		public void onConnectFailure(Exception e) {
-			
-		}
-		
-		@Override
-		public void onGetUserListResponse(UserList ul) {
-			
-		}
-
-		@Override
-		public void onChangePseudo() { 
-			
-		}
-		
-		@Override
-		public void onChangePseudoFailure(Exception e) {
-			
-		}
-	}
 
 	/**
 	 * Create a session.
@@ -187,7 +158,7 @@ public class Session {
 	 * @param pseudo
 	 * @throws IllegalArgumentException If the pseudo is not valid (locally).
 	 */
-	public Session(String pseudo, SessionListener l, boolean presenceServer) {
+	public Session(String pseudo, SessionListener l, PresenceClient presenceClient) {
 		// check pseudo validity
 		if (pseudo.isEmpty()) {
 			throw new IllegalArgumentException("Pseudo should be at least one character long");
@@ -235,32 +206,49 @@ public class Session {
 		
 		// Init presence client
 		
-		if (presenceServer) {
+		if (presenceClient != null) {
 			// TODO let the user choose the ports + address
-			this.presenceClient = new PresenceClient("127.0.0.1", 8000);
-			this.presenceClient.setListener(new SessionPresenceClientListener());
+			this.presenceClient = presenceClient;
 			
-			// TODO move this to when we actually get connected
-			// Poll server every few seconds to actualize user list.
-			this.scheduledExecutor.scheduleAtFixedRate(new Runnable() {
-				@Override
-				public void run() {
-					synchronized (presenceClient) {
-						presenceClient.requestUserList();
-					}
-				}
-			}, 0, 3000, TimeUnit.MILLISECONDS);
 		}
 		
 		
 		// Session initialization
+		this.currentUser = new User(pseudo, tcpReceiver.getPort(), "me");
 		
 		if (this.presenceClient != null) {
-			this.presenceClient.connect(pseudo, tcpReceiver.getPort());
+			try {
+				this.presenceClient.connect(pseudo, tcpReceiver.getPort());
+				
+				logger.log(Level.INFO, "Connected via PresenceServer");
+				this.sessionListener.onConnectionSuccess();
+				
+				// Poll server every few seconds to actualize user list.
+				this.executor.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						UserList ul = null;
+						
+						try {
+							ul = Session.this.presenceClient.requestUserList();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						
+						synchronized(Session.this) {
+							userList = ul;
+							sessionListener.onUserListChange();
+						}
+					}
+				}, 0, 3000, TimeUnit.MILLISECONDS);
+			} catch (IOException e) {
+				this.refused = true;
+				
+				this.sessionListener.onConnectionFailed(e);
+			}
 		}
 		else {
 			try {
-				this.currentUser = new User(pseudo, tcpReceiver.getPort(), "me");
 				this.udpMessager.multicast(new PacketHello(pseudo, this.tcpReceiver.getPort()));
 				this.connectionTimeout = executor.submit(new Callable<Boolean>() {
 					@Override
@@ -285,12 +273,19 @@ public class Session {
 	public synchronized void destroy() throws IOException {
 		IOException caught = null;
 		
-		// send Goodbye packet to notify users of end of activity 
-		if (this.presenceClient != null) {
-			this.presenceClient.disconnect();
-		}
-		else {
-			this.udpMessager.multicast(new PacketGoodbye(this.pseudo));
+		// send Goodbye packet to notify users of end of activity
+		if (!this.refused) {
+			try {
+				if (this.presenceClient != null) {
+					this.presenceClient.disconnect();
+				}
+				else {
+					this.udpMessager.multicast(new PacketGoodbye(this.pseudo));
+				}
+			}
+			catch (IOException e) {
+				caught = e;
+			}
 		}
 		
 		this.executor.shutdown();
@@ -323,21 +318,45 @@ public class Session {
 	
 	/** Returns conversation with a particular user. If the conversation does
 	 * not exist then it's created. */
-	// TODO synchronize
+	// TODO KNOWN BUG there are concurrent accesses to conversation in the app, without any synchronization
 	public Conversation getConversation(User user) {
-		Conversation conv = this.conversations.get(user);
-		if (conv == null) {
-			conv = new Conversation();
-			this.conversations.put(user, conv);
+		Conversation conv;
+		
+		synchronized (this) {
+			conv = this.conversations.get(user);
+			if (conv == null) {
+				conv = new Conversation();
+				this.conversations.put(user, conv);
+			}
 		}
 		return conv;
 	}
 	
 	// ACTIONS
 	
-	public synchronized void changePseudo(String newPseudo) {
+	public void changePseudo(String newPseudo) {
 		if (this.presenceClient != null) {
-			this.presenceClient.changePseudo(newPseudo);
+			
+			executor.submit(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						presenceClient.changePseudo(newPseudo);
+						
+						synchronized (this) {
+							currentUser.setPseudo(newPseudo);
+						}
+						
+						logger.log(Level.INFO, "pseudo changed to " + newPseudo);
+						sessionListener.onUserListChange();
+					}
+					catch (IOException e) {
+						logger.log(Level.WARNING, "change pseudo failed", e);
+						// TODO notice listener
+					}
+				}
+			});
 		}
 		else {
 			// TODO changePseudo

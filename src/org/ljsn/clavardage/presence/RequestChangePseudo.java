@@ -4,7 +4,8 @@ public class RequestChangePseudo extends Request {
 
 	public enum Result {
 		SUCCESS,
-		ALREADY_USED_PSEUDO;
+		ALREADY_USED_PSEUDO,
+		USER_NOT_FOUND;
 	}
 	
 	private String pseudo;
