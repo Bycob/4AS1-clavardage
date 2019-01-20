@@ -25,6 +25,9 @@ import org.ljsn.clavardage.network.TCPSender;
 import org.ljsn.clavardage.network.UDPMessager;
 import org.ljsn.clavardage.presence.PresenceClient;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
 public class Session {
 	public static final String MULTICAST_ADDRESS = "225.4.5.6";
 	public static final int PORT_UDP = 52684;
@@ -336,9 +339,12 @@ public class Session {
 		synchronized (this) {
 			conv = this.conversations.get(user);
 			if (conv == null) {
-				dbc.newConversation(user);
-				conv = new Conversation();
-				this.conversations.put(user, conv);
+				conv = dbc.getConversation(user);
+				if (conv == null) {
+					dbc.newConversation(user);
+					conv = new Conversation();
+					this.conversations.put(user, conv);
+				}
 			}
 		}
 		return conv;

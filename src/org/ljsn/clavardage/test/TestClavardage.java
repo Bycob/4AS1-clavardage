@@ -66,8 +66,9 @@ public class TestClavardage {
 											.append("restaurant_id", "12345");
 		db.saveToDb("conversations", dbo);
 		
-		DBObject res = db.getFromDb("conversations", new BasicDBObject("name", "The most royal magnificent taj mahal"));
-		System.out.println("So the fetch works cause the id of the restaurant is"+res.get("restaurant_id"));
+		DBObject res = db.getFromDb("conversations", new BasicDBObject("name", "The most royal magnificent taj mhal"));
+		if (res != null) System.out.println("So the fetch works cause the id of the restaurant is"+res.get("restaurant_id"));
+		else System.out.println("Find does not work");
 		db.closeMongoDB();
 		
 	}

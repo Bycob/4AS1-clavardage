@@ -1,8 +1,10 @@
 package org.ljsn.clavardage.core;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class Conversation {
@@ -40,4 +42,31 @@ public class Conversation {
 		
 		return messageListDBO;
 	}
+	
+	public static ArrayList<Message> DBOToMessageList(Object o) {
+		ArrayList<Message> ml = new ArrayList<Message>();
+		
+		if (o instanceof DBObject) {
+			DBObject dbo = (DBObject) o;
+			Object res = dbo.get("messages");
+			// cast to array list of dbobject
+			@SuppressWarnings("unchecked")
+			ArrayList<DBObject> a_dbo = (ArrayList<DBObject>) res;
+			// iterate over array
+			Iterator<DBObject> aDboIterator = a_dbo.iterator();
+			while(aDboIterator.hasNext()) {
+				DBObject currentMsg = aDboIterator.next();
+				Date timestamp = (Date)currentMsg.get("timestamp");
+				String content = (String)currentMsg.get("content");
+				User author = (User)currentMsg.get("author");
+				Message msg = new Message(timestamp, content, author);
+				ml.add(msg);
+			}
+		} else {
+			// TODO error throw
+			System.out.println("Error not a dbo object in DBOToMessageList");
+		}
+		return ml;
+	}
+	
 }

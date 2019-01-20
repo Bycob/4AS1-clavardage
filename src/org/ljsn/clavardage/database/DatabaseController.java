@@ -1,7 +1,11 @@
 package org.ljsn.clavardage.database;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.bson.types.ObjectId;
 import org.ljsn.clavardage.core.Conversation;
+import org.ljsn.clavardage.core.Message;
 import org.ljsn.clavardage.core.User;
 
 import com.mongodb.BasicDBObject;
@@ -33,6 +37,27 @@ public class DatabaseController {
 				.append("$set", new BasicDBObject().append("messages", c.MessageListToDBO()));
 		this.db.updateInDb("conversations", query, dbo);
 	}
+	
+	// fetches conversation corresponding to user u in database
+	public Conversation getConversation(User u) {
+		DBObject res = db.getFromDb("conversations", new BasicDBObject("ip_recepteur", u.getIpAddr()));
+		if (res == null) return null;
+		else {
+			// convert DBObject to conversation 
+			ArrayList<Message> messageList = Conversation.DBOToMessageList(res.get("messages"));
+			Conversation c = new Conversation();
+			// iterate over message list and add each message to conversation
+			Iterator<Message> messageIterator = messageList.iterator();
+			
+			while(messageIterator.hasNext()) {
+				Message currentMsg = messageIterator.next();
+				c.addMessage(currentMsg);
+			}
+			return c;
+		}
+	}
+	
+	
 	
 	public void close() {
 		this.db.closeMongoDB();
