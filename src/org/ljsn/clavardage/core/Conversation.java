@@ -43,7 +43,7 @@ public class Conversation {
 		return messageListDBO;
 	}
 	
-	public static ArrayList<Message> DBOToMessageList(Object o) {
+	public static ArrayList<Message> DBOToMessageList(Object o, UserList ul) {
 		ArrayList<Message> ml = new ArrayList<Message>();
 		
 		if (o instanceof DBObject) {
@@ -58,8 +58,9 @@ public class Conversation {
 				DBObject currentMsg = aDboIterator.next();
 				Date timestamp = (Date)currentMsg.get("timestamp");
 				String content = (String)currentMsg.get("content");
-				User author = (User)currentMsg.get("author");
-				Message msg = new Message(timestamp, content, author);
+				String author = (String)currentMsg.get("author");
+				User u = ul.getByIpAddress(author);
+				Message msg = new Message(timestamp, content, u);
 				ml.add(msg);
 			}
 		} else {
