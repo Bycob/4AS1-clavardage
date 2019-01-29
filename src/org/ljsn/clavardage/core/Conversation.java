@@ -43,29 +43,26 @@ public class Conversation {
 		return messageListDBO;
 	}
 	
-	public static ArrayList<Message> DBOToMessageList(Object o, UserList ul) {
+	public static ArrayList<Message> DBOToMessageList(Object o, UserList ul, User current) {
 		ArrayList<Message> ml = new ArrayList<Message>();
 		
-		if (o instanceof DBObject) {
-			DBObject dbo = (DBObject) o;
-			Object res = dbo.get("messages");
-			// cast to array list of dbobject
-			@SuppressWarnings("unchecked")
-			ArrayList<DBObject> a_dbo = (ArrayList<DBObject>) res;
-			// iterate over array
-			Iterator<DBObject> aDboIterator = a_dbo.iterator();
-			while(aDboIterator.hasNext()) {
-				DBObject currentMsg = aDboIterator.next();
-				Date timestamp = (Date)currentMsg.get("timestamp");
-				String content = (String)currentMsg.get("content");
-				String author = (String)currentMsg.get("author");
-				User u = ul.getByIpAddress(author);
-				Message msg = new Message(timestamp, content, u);
-				ml.add(msg);
+		// cast to array list of dbobject
+		@SuppressWarnings("unchecked")
+		ArrayList<DBObject> a_dbo = (ArrayList<DBObject>) o;
+		// iterate over array
+		Iterator<DBObject> aDboIterator = a_dbo.iterator();
+		while(aDboIterator.hasNext()) {
+			DBObject currentMsg = aDboIterator.next();
+			Date timestamp = (Date)currentMsg.get("timestamp");
+			String content = (String)currentMsg.get("content");
+			String author = (String)currentMsg.get("author");
+			User u = ul.getByIpAddress(author);
+			if (u == null)
+			{
+				u = current;
 			}
-		} else {
-			// TODO error throw
-			System.out.println("Error not a dbo object in DBOToMessageList");
+			Message msg = new Message(timestamp, content, u);
+			ml.add(msg);
 		}
 		return ml;
 	}
