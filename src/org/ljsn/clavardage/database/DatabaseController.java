@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.ljsn.clavardage.core.Conversation;
 import org.ljsn.clavardage.core.Message;
 import org.ljsn.clavardage.core.User;
+import org.ljsn.clavardage.core.UserList;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -39,12 +40,12 @@ public class DatabaseController {
 	}
 	
 	// fetches conversation corresponding to user u in database
-	public Conversation getConversation(User u) {
+	public Conversation getConversation(User u, UserList ul) {
 		DBObject res = db.getFromDb("conversations", new BasicDBObject("ip_recepteur", u.getIpAddr()));
 		if (res == null) return null;
 		else {
 			// convert DBObject to conversation 
-			ArrayList<Message> messageList = Conversation.DBOToMessageList(res.get("messages"));
+			ArrayList<Message> messageList = Conversation.DBOToMessageList(res.get("messages"), ul);
 			Conversation c = new Conversation();
 			// iterate over message list and add each message to conversation
 			Iterator<Message> messageIterator = messageList.iterator();

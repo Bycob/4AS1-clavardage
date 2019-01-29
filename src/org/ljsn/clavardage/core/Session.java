@@ -339,7 +339,7 @@ public class Session {
 		synchronized (this) {
 			conv = this.conversations.get(user);
 			if (conv == null) {
-				conv = dbc.getConversation(user);
+				conv = dbc.getConversation(user, this.getUserList());
 				if (conv == null) {
 					dbc.newConversation(user);
 					conv = new Conversation();
