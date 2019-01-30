@@ -24,7 +24,7 @@ public class PresenceServer implements HttpHandler {
 	private UserList users;
 	
 	public PresenceServer(int port) throws IOException {
-		this.server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
+		this.server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
 		this.server.createContext("/", this);
 		this.server.setExecutor(null);
 		
@@ -38,9 +38,10 @@ public class PresenceServer implements HttpHandler {
 	@Override
 	public void handle(HttpExchange exchange) throws IOException {
 		InetAddress address = exchange.getRemoteAddress().getAddress();
-		Request request = Request.readFromStream(exchange.getRequestBody());
+		logger.log(Level.INFO, "Received request from " + address);
 		
-		logger.log(Level.INFO, "Received request of type " + request.getClass().getSimpleName() + " from " + address);
+		Request request = Request.readFromStream(exchange.getRequestBody());
+		logger.log(Level.INFO, "Request type : " + request.getClass().getSimpleName());
 		
 		if (request instanceof RequestConnect) {
 			RequestConnect requestConnect = (RequestConnect) request;
