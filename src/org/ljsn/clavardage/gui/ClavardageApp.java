@@ -30,7 +30,7 @@ public class ClavardageApp extends Application {
 		this.primaryStage = stage;
 		stage.setWidth(800);
 		stage.setHeight(600);
-		stage.setTitle("sCOOp-di-POOp");
+		stage.setTitle("QUASI-MIR");
 		
 		FXMLLoader loader = new FXMLLoader(ClavardageApp.class.getResource("fxml/connect-panel.fxml"));
 		loader.setController(connectPanelController = new ConnectPanelController(this));
