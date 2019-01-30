@@ -7,6 +7,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoTimeoutException;
 
 public class Database {
 	public String test;
@@ -34,8 +35,16 @@ public class Database {
 	}
 	
 	public DBObject getFromDb(String collection, DBObject query) {
-		DBCursor cursor = this.mongoDatabase.getCollection(collection).find(query);
-		return cursor.one();
+		try {
+			DBCursor cursor = this.mongoDatabase.getCollection(collection).find(query);
+			return cursor.one();
+		}
+		catch(MongoTimeoutException me) {
+			// no database found 
+			me.printStackTrace();
+			return null;
+		}
+		
 	}
 	
 	public void initializeClient() {
