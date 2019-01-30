@@ -130,7 +130,7 @@ public class Session {
 				// if the user's identity is valid, remove the user from userList
 				User exitingUser = userList.pseudoMatchesIP(exitingUserPseudo, exitingUserIP);
 				if ( exitingUser != null) {
-					userList.removeUser(exitingUser);										
+					userList.removeUser(exitingUser);
 				}
 				
 				// update userlist on gui
@@ -145,9 +145,12 @@ public class Session {
 					Message msg = messagePkt.getMessage();
 					msg.setAuthor(u);
 					conv.addMessage(msg);
-					
-					dbc.updateConversation(conv, u);
-					
+
+					try {
+						dbc.updateConversation(conv, u);
+					}
+					catch (Exception e) {}
+
 					// update UI
 					sessionListener.onMessageReceived(u);
 				}
@@ -155,16 +158,16 @@ public class Session {
 					logger.warning("Message sender unkown");
 				}
 			} else {
-				// not hello or helloback so it's a message for a conversation 
-				
+				// not hello or helloback so it's a message for a conversation
+
 			}
 		}}
 	}
-	
+
 
 	/**
 	 * Create a session.
-	 * 
+	 *
 	 * @param pseudo
 	 * @throws IllegalArgumentException If the pseudo is not valid (locally).
 	 */
@@ -339,9 +342,19 @@ public class Session {
 		synchronized (this) {
 			conv = this.conversations.get(user);
 			if (conv == null) {
-				conv = dbc.getConversation(user, this.getUserList(), this.getCurrentUser());
+				try {
+					conv = dbc.getConversation(user, this.getUserList(), this.getCurrentUser());
+				}
+				catch (Exception e) {
+					conv = null;
+				}
+
 				if (conv == null) {
-					dbc.newConversation(user);
+					try {
+						dbc.newConversation(user);
+					}
+					catch (Exception e) {}
+
 					conv = new Conversation();
 					this.conversations.put(user, conv);
 				}
@@ -385,7 +398,12 @@ public class Session {
 		Message message = new Message(new Date(), content, this.currentUser);
 		Conversation conv = getConversation(user);
 		conv.addMessage(message);
-		dbc.updateConversation(conv, user);
+
+		try {
+			dbc.updateConversation(conv, user);
+		}
+		catch (Exception e) { }
+
 		this.sessionListener.onMessageSent(user);
 		
 		PacketMessage messagePkt = new PacketMessage(message);

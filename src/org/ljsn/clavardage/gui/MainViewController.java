@@ -93,7 +93,7 @@ public class MainViewController implements Initializable {
 	}
 	
 	public void updateConversation(User user) {
-		if (!this.currentUser.equals(user)) {
+		if (!user.equals(this.currentUser)) {
 			setNotification(user, true);
 			return;
 		}
