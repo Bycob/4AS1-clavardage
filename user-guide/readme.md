@@ -31,6 +31,19 @@ mvn package
 It will create a `target` directory in which you will find the executable, ready to be launched.
 
 ### Install MongoDB
+Install MongoDB on your operating system of choice. On Linux simply type:
+```
+sudo apt-get install mongodb
+```
+Create a directory where you can store your files. By default it is 
+```
+/data/db
+```
+Run MongoDB on localhost port 27017 by typing:
+```
+mongod
+```
+The local MongoDB database is now ready to save and retrieve messages.
 
 ## System Architecture
 
