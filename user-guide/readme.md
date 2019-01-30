@@ -75,6 +75,12 @@ There are two ways of connecting to the application : user discovery and presenc
 
 ### Send Messages
 
+In order to send a message, simply click on the desired recipient in the left hand column. Then, type a message in the bottom box and click send or press enter.
+
 ![Screen Capture](images/in-chat.png)
 
 ### Change your pseudo
+
+Changing a pseudonym works by selecting yourself as a message recipient. A menu will appear. Enter the new pseudonym and validate. 
+
+This only works with a prescence server. 
