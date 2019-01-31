@@ -50,7 +50,7 @@ mongod
 ```
 The local MongoDB database is now ready to save and retrieve messages.
 
-### Run the Application
+### Run the Application
 
 To run the application, simply double click on the jar from a file explorer, or type in the following command:
 ```
