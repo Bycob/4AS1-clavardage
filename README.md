@@ -1,7 +1,5 @@
 # Chat client in Java
 
-## Run the client
+Project realized by Louis Jean and Stefan Nesic for the Object Oriented Programming course.
 
-This repository can be imported in Eclipse as a project. The main class is `org.ljsn.clavardage.ClavardageApp`.
-
-Executing two clients on the same machine is not yet supported.
+See the [User Guide](user-guide/readme.md) for information about how to install and how to use the app.
